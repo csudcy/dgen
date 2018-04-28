@@ -10,3 +10,49 @@
   left: 0;
   right: 0;
 }
+
+#images {
+  border: 1px solid black;
+}
+
+.image_container {
+  padding: 5px;
+  position: relative;
+}
+
+.image_container .image {
+  height: 100%;
+  width: 100%;
+  display: block;
+  border: 1px solid black;
+  border-radius: 100%;
+  overflow: hidden;
+}
+
+.image_container .image .zoom {
+  height: 100%;
+  width: 100%;
+  display: block;
+  background-position: center;
+  background-size: cover;
+}
+
+.image_container .remove {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  height: 15px;
+  width: 15px;
+  display: block;
+  border-radius: 100%;
+  border: 1px solid black;
+  background-color: lightblue;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#images .image_container {
+  height: 100px;
+  width: 100px;
+  display: inline-block;
+}

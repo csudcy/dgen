@@ -2,6 +2,11 @@ $(document).ready(function() {
   'use strict';
   let DB;
 
+
+  /////////////////////////////
+  // Database functions
+  /////////////////////////////
+
   function _add_promise_handlers_for_request(request, resolve, reject) {
     request.onsuccess = function() {
       resolve(request.result);
@@ -35,9 +40,9 @@ $(document).ready(function() {
   function db_select(table) {
     return new Promise(function(resolve, reject) {
       DB.then(function(db) {
-        var tx = db.transaction(table, 'readonly');
-        var store = tx.objectStore(table);
-        var request = store.getAll();
+        let tx = db.transaction(table, 'readonly');
+        let store = tx.objectStore(table);
+        let request = store.getAll();
         _add_promise_handlers_for_request(request, resolve, reject);
       });
     });
@@ -46,9 +51,9 @@ $(document).ready(function() {
   function db_insert(table, value) {
     return new Promise(function(resolve, reject) {
       DB.then(function(db) {
-        var tx = db.transaction(table, 'readwrite');
-        var store = tx.objectStore(table);
-        var request = store.put(value);
+        let tx = db.transaction(table, 'readwrite');
+        let store = tx.objectStore(table);
+        let request = store.put(value);
         _add_promise_handlers_for_request(request, resolve, reject);
       });
     });
@@ -57,28 +62,73 @@ $(document).ready(function() {
   function db_update(table, value, key) {
     return new Promise(function(resolve, reject) {
       DB.then(function(db) {
-        var tx = db.transaction(table, 'readwrite');
-        var store = tx.objectStore(table);
-        var request = store.put(value, key);
+        let tx = db.transaction(table, 'readwrite');
+        let store = tx.objectStore(table);
+        let request = store.put(value, key);
         _add_promise_handlers_for_request(request, resolve, reject);
       });
     });
   }
+
+  function db_remove(table, key) {
+    return new Promise(function(resolve, reject) {
+      DB.then(function(db) {
+        let tx = db.transaction(table, 'readwrite');
+        let store = tx.objectStore(table);
+        let request = store.delete(key);
+        _add_promise_handlers_for_request(request, resolve, reject);
+      });
+    });
+  }
+
 
   /////////////////////////////
   // Image Management
   /////////////////////////////
 
   function add_image(file) {
-    console.log(file);
-    db_insert('images', file);
-    // $('<img>').
+    let reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = function(){
+      let data = this.result;
+      db_insert('images', {
+        zoom: 1.0,
+        x: 0,
+        y: 0,
+        data: data,
+      }).then(show_images);
+    }
   }
 
-  function load_images() {
+  function show_images() {
     db_select('images').then(function(images) {
-      console.log(images);
+      $('#images')
+        .empty()
+        .append($.map(images, function(image) {
+          return render_image(image);
+        }));
+
+      $('#images .remove').on('click', function() {
+        let image_id = $(this).parent().data('id');
+        db_remove('images', image_id).then(show_images);
+      })
     });
+  }
+
+  function render_image(image) {
+    console.log(image);
+    return `
+      <span class="image_container" data-id="${image.id}">
+        <span class="image">
+          <span class="zoom" style="
+            background-image: url(${image.data});
+            transform: scale(${image.zoom});
+          ">
+          </span>
+        </span>
+        <span class="remove">X</span>
+      </span>
+    `;
   }
 
 
@@ -110,11 +160,12 @@ $(document).ready(function() {
     });
   }
 
+
   /////////////////////////////
   // Init everything
   /////////////////////////////
 
   init_database();
-  load_images();
+  show_images();
   bind_drag_handlers();
 });
