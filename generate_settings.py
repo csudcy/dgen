@@ -3,7 +3,7 @@ import json
 import math
 import os
 
-OUTPUT_FILE = os.path.join('.', 'web', 'settings.js')
+OUTPUT_FILE = os.path.join('.', 'docs', 'settings.js')
 
 CARD_RADIUS = 1000
 CARD_DIAMETER = CARD_RADIUS * 2
