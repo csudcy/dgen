@@ -18,6 +18,7 @@
 .image_container {
   padding: 5px;
   position: relative;
+  display: inline-block;
 }
 
 .image_container .image {
@@ -54,5 +55,18 @@
 #images .image_container {
   height: 100px;
   width: 100px;
+}
+
+#cards {
+  border: 1px solid black;
+}
+
+#cards .card_container {
   display: inline-block;
+  height: 400px;
+  width: 400px;
+  border: 6px solid blue;
+  border-radius: 100%;
+  overflow: hidden;
+  position: relative;
 }
