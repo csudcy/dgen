@@ -2,6 +2,7 @@ from itertools import combinations
 import json
 import math
 import os
+import time
 
 OUTPUT_FILE = os.path.join('.', 'docs', 'js', 'settings.js')
 
@@ -29,21 +30,31 @@ SETTINGS = {
   3: Settings(3, False, 2.154),
   4: Settings(4, False, 2.414),
   6: Settings(6, False, 3),
-  8: Settings(8, True, 3.304),
+  # 8: Settings(8, True, 3.304),
 }
+
+def n_choose_k(n, k):
+  n_fac = math.factorial(n)
+  k_fac = math.factorial(k)
+  n_minus_k_fac = math.factorial(n - k)
+  return n_fac / (k_fac * n_minus_k_fac)
 
 # Adapted from https://codegolf.stackexchange.com/questions/101229/dobble-spotit-card-generator
 def make_combos(settings):
   print 'Making combos for {} items_per_card...'.format(settings.items_per_card)
 
   items = xrange(settings.items_required)
+  combination_count = n_choose_k(settings.items_required, settings.items_per_card)
 
   used_combos = []
   check_count = 0
+  next_output = 0
   for combo in combinations(items, settings.items_per_card):
     check_count += 1
-    if check_count % 100000 == 0:
-      print 'Checked {} combinations...'.format(check_count)
+    if time.time() > next_output:
+      next_output = time.time() + 1
+      pc_done = float(check_count) / float(combination_count) * 100.0
+      print 'Checked {:.2f}% ({} combinations)...'.format(pc_done, check_count)
     potential_combo = set(combo)
     # Work out if this combination is a valid combination
     # Valid combinations share exactly 1 item with every other card
@@ -76,7 +87,7 @@ def make_layout(settings):
 
   # If there is a centre image, place it now
   if centre_image:
-    place_image(-1, 0, 0)
+    place_image(0, 0)
     image_count -= 1
 
   # Place all the edge images
