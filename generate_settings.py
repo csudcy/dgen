@@ -6,7 +6,7 @@ import time
 
 OUTPUT_FILE = os.path.join('.', 'docs', 'js', 'settings.js')
 
-CARD_RADIUS = 100
+CARD_RADIUS = 50
 
 
 class Settings(object):
@@ -72,8 +72,8 @@ def make_layout(settings):
   image_radius = settings.image_radius
 
   def place_image(angle, offset):
-    tl_x = int(CARD_RADIUS + math.sin(angle) * offset - image_radius)
-    tl_y = int(CARD_RADIUS + math.cos(angle) * offset - image_radius)
+    tl_x = CARD_RADIUS + math.sin(angle) * offset - image_radius
+    tl_y = CARD_RADIUS + math.cos(angle) * offset - image_radius
 
     positions.append([tl_x, tl_y])
 

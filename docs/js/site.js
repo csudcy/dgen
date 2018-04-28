@@ -199,8 +199,8 @@ $(document).ready(function() {
           .css({
             'top': `${layout[1]}%`,
             'left': `${layout[0]}%`,
-            'width': `${settings.image_radius}%`,
-            'height': `${settings.image_radius}%`,
+            'width': `${settings.image_radius*2}%`,
+            'height': `${settings.image_radius*2}%`,
             'position': 'absolute',
             // rotation()
           }));
