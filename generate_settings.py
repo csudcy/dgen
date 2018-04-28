@@ -1,20 +1,12 @@
 from itertools import combinations
-import json
 import math
 import os
+import pprint
 import time
 
 OUTPUT_FILE = os.path.join('.', 'docs', 'js', 'settings.js')
 
-CARD_RADIUS = 1000
-CARD_DIAMETER = CARD_RADIUS * 2
-CARD_OUTLINE_WIDTH = 10
-CARD_BORDER = 10
-CARD_CENTER = CARD_BORDER + CARD_OUTLINE_WIDTH + CARD_RADIUS
-CARD_WH = 2*CARD_BORDER + 2*CARD_OUTLINE_WIDTH + CARD_DIAMETER
-
-CARD_OUTLINE_COLOUR = 'blue'
-CARD_INNER_COLOUR = 'white'
+CARD_RADIUS = 100
 
 
 class Settings(object):
@@ -80,8 +72,8 @@ def make_layout(settings):
   image_radius = settings.image_radius
 
   def place_image(angle, offset):
-    tl_x = int(CARD_CENTER + math.sin(angle) * offset - image_radius)
-    tl_y = int(CARD_CENTER + math.cos(angle) * offset - image_radius)
+    tl_x = int(CARD_RADIUS + math.sin(angle) * offset - image_radius)
+    tl_y = int(CARD_RADIUS + math.cos(angle) * offset - image_radius)
 
     positions.append([tl_x, tl_y])
 
@@ -99,10 +91,11 @@ def make_layout(settings):
 
 
 def generate():
-  settings = [
-    {
+  settings = {
+    info.items_per_card: {
       'items_per_card': info.items_per_card,
       'items_required': info.items_required,
+      'image_radius': info.image_radius,
       'combinations': [
         list(combo)
         for combo in make_combos(info)
@@ -110,11 +103,11 @@ def generate():
       'layout': make_layout(info)
     }
     for info in SETTINGS.itervalues()
-  ]
+  }
 
   with open(OUTPUT_FILE, 'w') as f:
     f.write('const SETTINGS = ')
-    json.dump(settings, f, sort_keys=True)
+    f.write(pprint.pformat(settings))
     f.write(';')
 
 
