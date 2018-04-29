@@ -106,7 +106,6 @@ $(document).ready(function() {
             <span class="image_container" data-id="${image.id}">
               ${image_html}
               <span class="button remove">X</span>
-              <span class="button edit">E</span>
             </span>
           `;
         }));
@@ -116,7 +115,7 @@ $(document).ready(function() {
         db_remove('images', image_id).then(show_images);
       })
 
-      $('#images .edit').on('click', function() {
+      $('#images .image').on('click', function() {
         let image_id = $(this).parent().data('id');
         db_get('images', image_id).then(function(image) {
           edit_image(image);
@@ -132,8 +131,9 @@ $(document).ready(function() {
       ">
         <span class="zoom" style="
           background-image: url(${image.data});
-
-          transform: scale(${image.zoom});
+          transform:
+            scale(${image.zoom})
+            translate(${image.x}%, ${image.y}%);
         "></span>
       </span>
     `;
@@ -160,10 +160,43 @@ $(document).ready(function() {
     $('#edit_overlay').show();
   }
 
+  let EDIT_DRAGGING = false;
+  let EDIT_PAGE_X, EDIT_PAGE_Y;
+  let EDIT_IMAGE_X, EDIT_IMAGE_Y;
+
   function show_edit_image() {
     $('#edit_overlay .edit_image')
       .empty()
       .append(render_image(EDIT_IMAGE));
+
+    let pc_mult = 100.0 / $('#edit_overlay .edit_image').width();
+
+    $('#edit_overlay .edit_image .zoom').on('mousedown', function(event) {
+      EDIT_DRAGGING = true;
+      EDIT_IMAGE_X = EDIT_IMAGE.x;
+      EDIT_IMAGE_Y = EDIT_IMAGE.y;
+      EDIT_PAGE_X = event.pageX;
+      EDIT_PAGE_Y = event.pageY;
+    });
+
+    $('#edit_overlay .edit_image .zoom').on('mousemove', function(event) {
+      if (!EDIT_DRAGGING) return;
+
+      let new_x = EDIT_IMAGE.x + (event.pageX - EDIT_PAGE_X) * pc_mult;
+      let new_y = EDIT_IMAGE.y + (event.pageY - EDIT_PAGE_Y) * pc_mult;
+      $('#edit_overlay .edit_image .zoom').css({
+        'transform': `scale(${EDIT_IMAGE.zoom}) translate(${new_x}%, ${new_y}%)`,
+      });
+    });
+
+    $('#edit_overlay .edit_image .zoom').on('mouseup', function(event) {
+      if (!EDIT_DRAGGING) return;
+
+      EDIT_DRAGGING = false;
+
+      EDIT_IMAGE.x += (event.pageX - EDIT_PAGE_X) * pc_mult;
+      EDIT_IMAGE.y += (event.pageY - EDIT_PAGE_Y) * pc_mult;
+    });
   }
 
 
@@ -271,14 +304,14 @@ $(document).ready(function() {
   function init_edit_ui() {
     $('#edit_overlay .apply').on('click', function() {
       db_put('images', EDIT_IMAGE).then(function() {
-        edit_image = null;
+        EDIT_IMAGE = null;
         $('#edit_overlay').hide();
         show_images();
       });
     });
 
     $('#edit_overlay .cancel').on('click', function() {
-      edit_image = null;
+      EDIT_IMAGE = null;
       $('#edit_overlay').hide();
     });
 

@@ -12,8 +12,10 @@
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-.button, .big_button {
+.button {
   position: absolute;
+  height: 15px;
+  width: 15px;
   right: 5px;
   display: block;
   border-radius: 100%;
@@ -22,17 +24,6 @@
   font-weight: bold;
   cursor: pointer;
   text-align: center;
-}
-
-.button {
-  height: 15px;
-  width: 15px;
-}
-
-.big_button {
-  height: 35px;
-  width: 35px;
-  font-size: 30px;
 }
 
 
@@ -92,16 +83,13 @@
   display: inline-block;
 }
 
-.image_container .image {
+#images .image_container .image {
   border: 1px solid black;
+  cursor: pointer;
 }
 
-.image_container .remove {
+#images .image_container .remove {
   top: 5px;
-}
-
-.image_container .edit {
-  bottom: 5px;
 }
 
 
@@ -134,6 +122,10 @@
   height: 500px;
   width: 500px;
   margin-top: 50px;
+}
+
+#edit_overlay .edit_image .image .zoom {
+  cursor: all-scroll;
 }
 
 #edit_overlay .settings_container {
