@@ -1,6 +1,9 @@
 $(document).ready(function() {
   'use strict';
-  let DB;
+  let DB = null;
+
+  // Current image being edited
+  let EDIT_IMAGE = null;
 
 
   /////////////////////////////
@@ -21,6 +24,17 @@ $(document).ready(function() {
     };
   }
 
+  function _db_request(table, lock, get_request) {
+    return new Promise(function(resolve, reject) {
+      DB.then(function(db) {
+        let tx = db.transaction(table, lock);
+        let store = tx.objectStore(table);
+        let request = get_request(store);
+        _add_promise_handlers_for_request(request, resolve, reject);
+      });
+    });
+  }
+
   function init_database() {
     DB = new Promise(function(resolve, reject) {
       let open = indexedDB.open('dgen', 1);
@@ -38,46 +52,26 @@ $(document).ready(function() {
   }
 
   function db_select(table) {
-    return new Promise(function(resolve, reject) {
-      DB.then(function(db) {
-        let tx = db.transaction(table, 'readonly');
-        let store = tx.objectStore(table);
-        let request = store.getAll();
-        _add_promise_handlers_for_request(request, resolve, reject);
-      });
+    return _db_request(table, 'readonly', function(store) {
+      return store.getAll();
     });
   }
 
-  function db_insert(table, value) {
-    return new Promise(function(resolve, reject) {
-      DB.then(function(db) {
-        let tx = db.transaction(table, 'readwrite');
-        let store = tx.objectStore(table);
-        let request = store.put(value);
-        _add_promise_handlers_for_request(request, resolve, reject);
-      });
+  function db_get(table, key) {
+    return _db_request(table, 'readonly', function(store) {
+      return store.get(key);
     });
   }
 
-  function db_update(table, value, key) {
-    return new Promise(function(resolve, reject) {
-      DB.then(function(db) {
-        let tx = db.transaction(table, 'readwrite');
-        let store = tx.objectStore(table);
-        let request = store.put(value, key);
-        _add_promise_handlers_for_request(request, resolve, reject);
-      });
+  function db_put(table, value) {
+    return _db_request(table, 'readwrite', function(store) {
+      return store.put(value);
     });
   }
 
   function db_remove(table, key) {
-    return new Promise(function(resolve, reject) {
-      DB.then(function(db) {
-        let tx = db.transaction(table, 'readwrite');
-        let store = tx.objectStore(table);
-        let request = store.delete(key);
-        _add_promise_handlers_for_request(request, resolve, reject);
-      });
+    return _db_request(table, 'readwrite', function(store) {
+      return store.delete(key);
     });
   }
 
@@ -91,10 +85,11 @@ $(document).ready(function() {
       let reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = function(){
-        db_insert('images', {
+        db_put('images', {
           zoom: 1.0,
           x: 0,
           y: 0,
+          background_color: '#ffffff',
           data: this.result,
         }).then(resolve);
       };
@@ -110,8 +105,8 @@ $(document).ready(function() {
           return `
             <span class="image_container" data-id="${image.id}">
               ${image_html}
-              <span class="remove">X</span>
-              <span class="edit">E</span>
+              <span class="button remove">X</span>
+              <span class="button edit">E</span>
             </span>
           `;
         }));
@@ -123,17 +118,21 @@ $(document).ready(function() {
 
       $('#images .edit').on('click', function() {
         let image_id = $(this).parent().data('id');
-        // db_remove('images', image_id).then(show_images);
-        console.log(image_id);
+        db_get('images', image_id).then(function(image) {
+          edit_image(image);
+        });
       })
     });
   }
 
   function render_image(image) {
     return `
-      <span class="image">
+      <span class="image" style="
+        background-color: ${image.background_color};
+      ">
         <span class="zoom" style="
           background-image: url(${image.data});
+
           transform: scale(${image.zoom});
         "></span>
       </span>
@@ -146,6 +145,25 @@ $(document).ready(function() {
         <span class="zoom">${index}</span>
       </span>
     `;
+  }
+
+
+  /////////////////////////////
+  // Image Editing
+  /////////////////////////////
+
+  function edit_image(image) {
+    EDIT_IMAGE = image;
+    show_edit_image();
+    $('#edit_overlay .zoom').val(image.zoom);
+    $('#edit_overlay .background_color').val(image.background_color);
+    $('#edit_overlay').show();
+  }
+
+  function show_edit_image() {
+    $('#edit_overlay .edit_image')
+      .empty()
+      .append(render_image(EDIT_IMAGE));
   }
 
 
@@ -250,6 +268,32 @@ $(document).ready(function() {
     });
   }
 
+  function init_edit_ui() {
+    $('#edit_overlay .apply').on('click', function() {
+      db_put('images', EDIT_IMAGE).then(function() {
+        edit_image = null;
+        $('#edit_overlay').hide();
+        show_images();
+      });
+    });
+
+    $('#edit_overlay .cancel').on('click', function() {
+      edit_image = null;
+      $('#edit_overlay').hide();
+    });
+
+    $('#edit_overlay .zoom').on('change, input', function() {
+      EDIT_IMAGE.zoom = $(this).val();
+      show_edit_image();
+    });
+
+    $('#edit_overlay .background_color').on('change', function() {
+      EDIT_IMAGE.background_color = $(this).val();
+      console.log(EDIT_IMAGE.background_color);
+      show_edit_image();
+    });
+  }
+
 
   /////////////////////////////
   // Init everything
@@ -259,4 +303,5 @@ $(document).ready(function() {
   show_images();
   init_image_ui();
   init_generate_ui();
+  init_edit_ui();
 });

@@ -1,18 +1,52 @@
 /************************\
-* General page layout
+* Components
 \************************/
 
-#drag_overlay {
-  background-color: lightblue;
+.overlay {
   display: none;
-  text-align: center;
-  font-size: 40px;
-  padding-top: 40%;
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.button, .big_button {
+  position: absolute;
+  right: 5px;
+  display: block;
+  border-radius: 100%;
+  border: 1px solid black;
+  background-color: lightblue;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+}
+
+.button {
+  height: 15px;
+  width: 15px;
+}
+
+.big_button {
+  height: 35px;
+  width: 35px;
+  font-size: 30px;
+}
+
+
+/************************\
+* Page layout
+\************************/
+
+#drag_overlay {
+  text-align: center;
+  font-size: 40px;
+  padding-top: 40%;
+}
+
+#edit_overlay {
 }
 
 #images {
@@ -22,7 +56,6 @@
 #cards {
   border: 1px solid black;
 }
-
 
 /************************\
 * All images
@@ -63,19 +96,6 @@
   border: 1px solid black;
 }
 
-.image_container .remove, .image_container .edit {
-  position: absolute;
-  right: 5px;
-  height: 15px;
-  width: 15px;
-  display: block;
-  border-radius: 100%;
-  border: 1px solid black;
-  background-color: lightblue;
-  font-weight: bold;
-  cursor: pointer;
-}
-
 .image_container .remove {
   top: 5px;
 }
@@ -97,4 +117,31 @@
   border-radius: 100%;
   overflow: hidden;
   position: relative;
+}
+
+
+/************************\
+* Image editing
+\************************/
+
+#edit_overlay .remove {
+  top: 5px;
+}
+
+#edit_overlay .edit_image {
+  display: block;
+  margin: auto;
+  height: 500px;
+  width: 500px;
+  margin-top: 50px;
+}
+
+#edit_overlay .settings_container {
+  display: block;
+  text-align: center;
+  font-size: 30px;
+}
+
+#edit_overlay .settings_container button {
+  font-size: 30px;
 }

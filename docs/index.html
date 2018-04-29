@@ -26,8 +26,22 @@
       Cards...
     </div>
 
-    <div id="drag_overlay">
+    <div id="drag_overlay" class="overlay">
       Drop images here to add them to the available images!
+    </div>
+
+    <div id="edit_overlay" class="overlay">
+      <span class="edit_image">
+      </span>
+      <span class="settings_container">
+        Image Zoom: <input type="number" class="zoom" min="0.1" step=".1">
+        <br/>
+        Background colour: <input type="color" class="background_color">
+        <br/>
+        <button class="apply">Save Changes</button>
+        <button class="cancel">Cancel Changes</button>
+      </span>
+      <span class="big_button remove">X</span>
     </div>
   </body>
 </html>
