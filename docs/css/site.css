@@ -31,21 +31,47 @@
 * Page layout
 \************************/
 
+#left {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  width: 230px;
+  border: 1px solid black;
+}
+
+#right {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 230px;
+  right: 0px;
+  border: 1px solid black;
+}
+
+#images {
+  position: absolute;
+  top: 50px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  overflow: scroll;
+}
+
+#cards {
+  position: absolute;
+  top: 50px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  overflow: scroll;
+  border: 1px solid black;
+}
+
 #drag_overlay {
   text-align: center;
   font-size: 40px;
   padding-top: 40%;
-}
-
-#edit_overlay {
-}
-
-#images {
-  border: 1px solid black;
-}
-
-#cards {
-  border: 1px solid black;
 }
 
 /************************\
@@ -102,6 +128,7 @@
   height: 400px;
   width: 400px;
   border: 6px solid blue;
+  background-color: white;
   border-radius: 100%;
   overflow: hidden;
   position: relative;

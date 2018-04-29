@@ -8,22 +8,20 @@
     <script type="text/javascript" src="js/site.js"></script>
   </head>
   <body>
-    <h1>Welcome to DGen</h1>
-    This is a dobble-like card generator.
-    <div id="images">
-      Images...
+    <div id="left">
+      <h1>DGen</h1>
+      <div id="images"></div>
     </div>
 
-    <div id="generator">
-      Generator...
-      <label for="card_order">Items per card:</label>
-      <select id="card_order">
-      </select>
-      <button id="generate">Generate!</button>
-    </div>
+    <div id="right">
+      <div id="generator">
+        <label for="card_order">Items per card:</label>
+        <select id="card_order">
+        </select>
+        <button id="generate">Generate!</button>
+      </div>
 
-    <div id="cards">
-      Cards...
+      <div id="cards"></div>
     </div>
 
     <div id="drag_overlay" class="overlay">

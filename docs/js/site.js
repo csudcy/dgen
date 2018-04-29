@@ -1,3 +1,19 @@
+/*
+TODO:
+  BUG: Images clipped to zoom box :/
+  Auto generate
+  Set card border color
+  Set card border width
+  Set card background color
+  Save generate settings
+  Helpful messages
+  Layout editor
+  Printing
+  Export/import
+  Images sets?
+  Card sets?
+*/
+
 $(document).ready(function() {
   'use strict';
   let DB = null;
