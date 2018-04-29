@@ -1,11 +1,7 @@
 /*
 TODO:
   BUG: Images clipped to zoom box :/
-  Auto generate
-  Set card border color
-  Set card border width
-  Set card background color
-  Save generate settings
+  BUG: Print doesn't do background images
   Helpful messages
   Layout editor
   Printing
@@ -16,10 +12,20 @@ TODO:
 
 $(document).ready(function() {
   'use strict';
+
+  // Database variables
+  const TABLE_IMAGES = 'images';
+  const TABLE_CARD_SETTINGS = 'card_settings';
   let DB = null;
 
-  // Current image being edited
+  // Settings
+  let CARD_SETTINGS = null;
+
+  // Image editing/dragging info
   let EDIT_IMAGE = null;
+  let EDIT_DRAGGING = false;
+  let EDIT_PAGE_X, EDIT_PAGE_Y;
+  let EDIT_IMAGE_X, EDIT_IMAGE_Y;
 
 
   /////////////////////////////
@@ -53,13 +59,18 @@ $(document).ready(function() {
 
   function init_database() {
     DB = new Promise(function(resolve, reject) {
-      let open = indexedDB.open('dgen', 1);
+      let open = indexedDB.open('dgen', 2);
 
       // Create the schema
       open.onupgradeneeded = function() {
         let upgradeDb = open.result;
-        if (!upgradeDb.objectStoreNames.contains('images')) {
-          upgradeDb.createObjectStore('images', {keyPath: 'id', autoIncrement: true});
+
+        if (!upgradeDb.objectStoreNames.contains(TABLE_IMAGES)) {
+          upgradeDb.createObjectStore(TABLE_IMAGES, {keyPath: 'id', autoIncrement: true});
+        }
+
+        if (!upgradeDb.objectStoreNames.contains(TABLE_CARD_SETTINGS)) {
+          upgradeDb.createObjectStore(TABLE_CARD_SETTINGS, {keyPath: 'id', autoIncrement: true});
         }
       };
 
@@ -67,7 +78,7 @@ $(document).ready(function() {
     });
   }
 
-  function db_select(table) {
+  function db_fetch(table) {
     return _db_request(table, 'readonly', function(store) {
       return store.getAll();
     });
@@ -101,7 +112,7 @@ $(document).ready(function() {
       let reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = function(){
-        db_put('images', {
+        db_put(TABLE_IMAGES, {
           zoom: 1.0,
           x: 0,
           y: 0,
@@ -113,7 +124,7 @@ $(document).ready(function() {
   }
 
   function show_images() {
-    db_select('images').then(function(images) {
+    db_fetch(TABLE_IMAGES).then(function(images) {
       $('#images')
         .empty()
         .append($.map(images, function(image) {
@@ -128,15 +139,17 @@ $(document).ready(function() {
 
       $('#images .remove').on('click', function() {
         let image_id = $(this).parent().data('id');
-        db_remove('images', image_id).then(show_images);
+        db_remove(TABLE_IMAGES, image_id).then(show_images);
       })
 
       $('#images .image').on('click', function() {
         let image_id = $(this).parent().data('id');
-        db_get('images', image_id).then(function(image) {
+        db_get(TABLE_IMAGES, image_id).then(function(image) {
           edit_image(image);
         });
       })
+
+      generate();
     });
   }
 
@@ -175,10 +188,6 @@ $(document).ready(function() {
     $('#edit_overlay .background_color').val(image.background_color);
     $('#edit_overlay').show();
   }
-
-  let EDIT_DRAGGING = false;
-  let EDIT_PAGE_X, EDIT_PAGE_Y;
-  let EDIT_IMAGE_X, EDIT_IMAGE_Y;
 
   function show_edit_image() {
     $('#edit_overlay .edit_image')
@@ -221,9 +230,8 @@ $(document).ready(function() {
   /////////////////////////////
 
   function generate() {
-    db_select('images').then(function(images) {
-      let order = parseInt($('#card_order').val());
-      let settings = SETTINGS[order];
+    db_fetch(TABLE_IMAGES).then(function(images) {
+      let settings = SETTINGS[CARD_SETTINGS.order];
 
       // Shuffle the images so the cards are more randomised
       shuffle_array(images);
@@ -255,7 +263,12 @@ $(document).ready(function() {
   }
 
   function generate_card(settings, rendered_images, combination) {
-    let card_container = $('<span class="card_container"></span>');
+    let card_container = $('<span class="card_container"></span>').css({
+      'height': `${2*CARD_SETTINGS.radius}px`,
+      'width': `${2*CARD_SETTINGS.radius}px`,
+      'border': `${CARD_SETTINGS.border_thickness}px solid ${CARD_SETTINGS.border_color}`,
+      'background-color': `${CARD_SETTINGS.background_color}`,
+    });
 
     $.each(combination, function(index, image_index) {
       let layout = settings.layout[index];
@@ -274,6 +287,47 @@ $(document).ready(function() {
 
     return card_container;
   }
+
+
+  /////////////////////////////
+  // Card settings
+  /////////////////////////////
+
+  function load_card_settings() {
+    db_fetch(TABLE_CARD_SETTINGS).then(function(card_settings) {
+      if (card_settings[0]) {
+        // Use the settings from the DB
+        CARD_SETTINGS = card_settings[0];
+      } else {
+        // Make default settings
+        CARD_SETTINGS = {
+          background_color: '#ffffff',
+          border_color: '#00ff00',
+          border_thickness: 6,
+          order: 3,
+          radius: 200,
+        };
+      }
+
+      $('#card_background_color').val(CARD_SETTINGS.background_color);
+      $('#card_border_color').val(CARD_SETTINGS.border_color);
+      $('#card_border_thickness').val(CARD_SETTINGS.border_thickness);
+      $('#card_order').val(CARD_SETTINGS.order);
+      $('#card_radius').val(CARD_SETTINGS.radius);
+    });
+  }
+
+  function save_card_settings() {
+    console.log('save_card_settings');
+    CARD_SETTINGS.background_color = $('#card_background_color').val();
+    CARD_SETTINGS.border_color = $('#card_border_color').val();
+    CARD_SETTINGS.border_thickness = $('#card_border_thickness').val();
+    CARD_SETTINGS.order = $('#card_order').val();
+    CARD_SETTINGS.radius = $('#card_radius').val();
+    db_put(TABLE_CARD_SETTINGS, CARD_SETTINGS);
+    generate();
+  }
+
 
   /////////////////////////////
   // Init functions
@@ -315,11 +369,13 @@ $(document).ready(function() {
     $('#generate').on('click', function() {
       generate();
     });
+
+    $('#generate_settings input, #generate_settings select').on('change, input', save_card_settings);
   }
 
   function init_edit_ui() {
     $('#edit_overlay .apply').on('click', function() {
-      db_put('images', EDIT_IMAGE).then(function() {
+      db_put(TABLE_IMAGES, EDIT_IMAGE).then(function() {
         EDIT_IMAGE = null;
         $('#edit_overlay').hide();
         show_images();
@@ -349,6 +405,7 @@ $(document).ready(function() {
   /////////////////////////////
 
   init_database();
+  load_card_settings();
   show_images();
   init_image_ui();
   init_generate_ui();

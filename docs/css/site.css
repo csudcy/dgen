@@ -120,6 +120,29 @@
 
 
 /************************\
+* Generator settings
+\************************/
+
+#generate_settings {
+  margin-left: 10px;
+}
+
+#generate_settings label {
+  min-width: 100px;
+  display: inline-block;
+}
+
+#generate_settings input, #generate_settings select {
+  width: 40px;
+  margin-right: 10px;
+}
+
+#generate_settings button {
+  width: 170px;
+}
+
+
+/************************\
 * Card list
 \************************/
 

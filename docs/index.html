@@ -14,10 +14,23 @@
     </div>
 
     <div id="right">
-      <div id="generator">
+      <div id="generate_settings">
+        <label for="card_border_color">Border:</label>
+        <input type="color" id="card_border_color">
+
+        <label for="card_radius">Card Radius:</label>
+        <input type="number" id="card_radius" min="100" max="1000" step="25">
+
+        <label for="card_border_thickness">Border Thickness:</label>
+        <input type="number" id="card_border_thickness" min="1" max="20">
+        <br/>
+
+        <label for="card_background_color">Background:</label>
+        <input type="color" id="card_background_color">
+
         <label for="card_order">Items per card:</label>
-        <select id="card_order">
-        </select>
+        <select id="card_order"></select>
+
         <button id="generate">Generate!</button>
       </div>
 
