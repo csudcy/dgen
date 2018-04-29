@@ -105,9 +105,13 @@ $(document).ready(function() {
       $('#images')
         .empty()
         .append($.map(images, function(image) {
-          let image_html = $(render_image(image));
-          image_html.append($('<span class="remove">X</span>'));
-          return image_html;
+          let image_html = render_image(image);
+          return `
+            <span class="image_container" data-id="${image.id}">
+              ${image_html}
+              <span class="remove">X</span>
+            </span>
+          `;
         }));
 
       $('#images .remove').on('click', function() {
@@ -118,54 +122,50 @@ $(document).ready(function() {
   }
 
   function render_image(image) {
-    console.log(image);
     return `
-      <span class="image_container" data-id="${image.id}">
-        <span class="image">
-          <span class="zoom" style="
-            background-image: url(${image.data});
-            transform: scale(${image.zoom});
-          "></span>
-        </span>
+      <span class="image">
+        <span class="zoom" style="
+          background-image: url(${image.data});
+          transform: scale(${image.zoom});
+        "></span>
       </span>
     `;
   }
 
   function render_placeholder(index) {
     return `
-      <span class="image_container">
-        <span class="image">
-          <span class="zoom">${index}</span>
-        </span>
+      <span class="image">
+        <span class="zoom">${index}</span>
       </span>
     `;
   }
 
 
   /////////////////////////////
-  // Generation Functions
+  // Card Generation
   /////////////////////////////
 
   function generate() {
     db_select('images').then(function(images) {
       let order = parseInt($('#card_order').val());
       let settings = SETTINGS[order];
-      console.log(settings);
 
       // Shuffle the images so the cards are more randomised
       shuffle_array(images);
 
-      // Generate all the images
+      // Generate all the images/placeholders
       let rendered_images = $.map(images, render_image);
-      while (images.length < settings.items_required) {
-        rendered_images.push(render_placeholder(images.length))
+      while (rendered_images.length < settings.items_required) {
+        rendered_images.push(render_placeholder(rendered_images.length))
       }
 
       // Generate all the cards
-      $('#cards').append(
-        $.map(settings.combinations, function(combination) {
-          return generate_card(settings, rendered_images, combination);
-        }));
+      $('#cards')
+        .empty()
+        .append(
+          $.map(settings.combinations, function(combination) {
+            return generate_card(settings, rendered_images, combination);
+          }));
     });
   }
 
@@ -180,20 +180,11 @@ $(document).ready(function() {
   }
 
   function generate_card(settings, rendered_images, combination) {
-    //
-    console.log('settings', settings);
-    console.log('rendered_images', rendered_images);
-    console.log('combination', combination);
-
     let card_container = $('<span class="card_container"></span>');
 
     $.each(combination, function(index, image_index) {
-      //
-      console.log('index', index);
-      console.log('image_index', image_index);
-
       let layout = settings.layout[index];
-      console.log('layout', layout);
+      let rotation = Math.floor(Math.random() * 360.0);
       card_container.append(
         $(rendered_images[image_index])
           .css({
@@ -202,7 +193,7 @@ $(document).ready(function() {
             'width': `${settings.image_radius*2}%`,
             'height': `${settings.image_radius*2}%`,
             'position': 'absolute',
-            // rotation()
+            'transform': `rotate(${rotation}deg)`,
           }));
     });
 
@@ -246,7 +237,6 @@ $(document).ready(function() {
       }));
 
     $('#generate').on('click', function() {
-      console.log('Generate!');
       generate();
     });
   }
