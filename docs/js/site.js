@@ -3,7 +3,6 @@ TODO:
   BUG: Images clipped to zoom box :/
   BUG: Print doesn't do background images
   BUG: Drag & drop when editing doesn't work
-  Make zoom more obvious
   Layout editor
   Printing
   Export/import
@@ -192,7 +191,7 @@ $(document).ready(function() {
   function edit_image(image) {
     EDIT_IMAGE = image;
     show_edit_image();
-    $('#edit_overlay .zoom').val(image.zoom);
+    $('#edit_overlay #zoom').val(image.zoom);
     $('#edit_overlay .background_color').val(image.background_color);
     $('#edit_overlay').show();
   }
@@ -201,6 +200,8 @@ $(document).ready(function() {
     $('#edit_overlay .edit_image')
       .empty()
       .append(render_image(EDIT_IMAGE));
+
+    $('#zoom_caption').text(EDIT_IMAGE.zoom);
 
     let pc_mult = 100.0 / $('#edit_overlay .edit_image').width();
 
@@ -394,14 +395,13 @@ $(document).ready(function() {
       $('#edit_overlay').hide();
     });
 
-    $('#edit_overlay .zoom').on('change, input', function() {
+    $('#edit_overlay #zoom').on('change, input', function() {
       EDIT_IMAGE.zoom = $(this).val();
       show_edit_image();
     });
 
     $('#edit_overlay .background_color').on('change', function() {
       EDIT_IMAGE.background_color = $(this).val();
-      console.log(EDIT_IMAGE.background_color);
       show_edit_image();
     });
   }

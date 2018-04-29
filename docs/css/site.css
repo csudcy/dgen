@@ -9,7 +9,8 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
 }
 
 .button {
@@ -72,7 +73,6 @@
   text-align: center;
   font-size: 40px;
   padding-top: 40%;
-  color: white;
 }
 
 /************************\
@@ -183,7 +183,7 @@
   margin: auto;
   height: 500px;
   width: 500px;
-  margin-top: 50px;
+  margin-top: 25px;
 }
 
 #edit_overlay .edit_image .image .zoom {
@@ -198,4 +198,8 @@
 
 #edit_overlay .settings_container button {
   font-size: 30px;
+}
+
+#zoom {
+  width: 250px;
 }
