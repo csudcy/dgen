@@ -63,9 +63,8 @@
   border: 1px solid black;
 }
 
-.image_container .remove {
+.image_container .remove, .image_container .edit {
   position: absolute;
-  top: 5px;
   right: 5px;
   height: 15px;
   width: 15px;
@@ -75,6 +74,14 @@
   background-color: lightblue;
   font-weight: bold;
   cursor: pointer;
+}
+
+.image_container .remove {
+  top: 5px;
+}
+
+.image_container .edit {
+  bottom: 5px;
 }
 
 

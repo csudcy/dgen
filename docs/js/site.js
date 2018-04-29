@@ -87,17 +87,18 @@ $(document).ready(function() {
   /////////////////////////////
 
   function add_image(file) {
-    let reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = function(){
-      let data = this.result;
-      db_insert('images', {
-        zoom: 1.0,
-        x: 0,
-        y: 0,
-        data: data,
-      }).then(show_images);
-    }
+    return new Promise(function(resolve, reject) {
+      let reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = function(){
+        db_insert('images', {
+          zoom: 1.0,
+          x: 0,
+          y: 0,
+          data: this.result,
+        }).then(resolve);
+      };
+    });
   }
 
   function show_images() {
@@ -110,6 +111,7 @@ $(document).ready(function() {
             <span class="image_container" data-id="${image.id}">
               ${image_html}
               <span class="remove">X</span>
+              <span class="edit">E</span>
             </span>
           `;
         }));
@@ -117,6 +119,12 @@ $(document).ready(function() {
       $('#images .remove').on('click', function() {
         let image_id = $(this).parent().data('id');
         db_remove('images', image_id).then(show_images);
+      })
+
+      $('#images .edit').on('click', function() {
+        let image_id = $(this).parent().data('id');
+        // db_remove('images', image_id).then(show_images);
+        console.log(image_id);
       })
     });
   }
@@ -222,9 +230,10 @@ $(document).ready(function() {
       event.preventDefault();
       event.stopPropagation();
       $('#drag_overlay').hide();
-      $.each(event.originalEvent.dataTransfer.files, function(index, file) {
-        add_image(file);
-      });
+
+      Promise.all(
+        $.map(event.originalEvent.dataTransfer.files, add_image)
+      ).then(show_images);
     });
   }
 
