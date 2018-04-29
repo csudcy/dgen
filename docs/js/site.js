@@ -2,7 +2,8 @@
 TODO:
   BUG: Images clipped to zoom box :/
   BUG: Print doesn't do background images
-  Helpful messages
+  BUG: Drag & drop when editing doesn't work
+  Make zoom more obvious
   Layout editor
   Printing
   Export/import
@@ -125,29 +126,36 @@ $(document).ready(function() {
 
   function show_images() {
     db_fetch(TABLE_IMAGES).then(function(images) {
-      $('#images')
-        .empty()
-        .append($.map(images, function(image) {
-          let image_html = render_image(image);
-          return `
-            <span class="image_container" data-id="${image.id}">
-              ${image_html}
-              <span class="button remove">X</span>
-            </span>
-          `;
-        }));
+      if (images.length) {
+        $('#no_images').hide();
+        $('#images')
+          .empty()
+          .append(
+            $.map(images, function(image) {
+              let image_html = render_image(image);
+              return `
+                <span class="image_container" data-id="${image.id}">
+                  ${image_html}
+                  <span class="button remove">X</span>
+                </span>
+              `;
+            })).show();
 
-      $('#images .remove').on('click', function() {
-        let image_id = $(this).parent().data('id');
-        db_remove(TABLE_IMAGES, image_id).then(show_images);
-      })
+        $('#images .remove').on('click', function() {
+          let image_id = $(this).parent().data('id');
+          db_remove(TABLE_IMAGES, image_id).then(show_images);
+        })
 
-      $('#images .image').on('click', function() {
-        let image_id = $(this).parent().data('id');
-        db_get(TABLE_IMAGES, image_id).then(function(image) {
-          edit_image(image);
-        });
-      })
+        $('#images .image').on('click', function() {
+          let image_id = $(this).parent().data('id');
+          db_get(TABLE_IMAGES, image_id).then(function(image) {
+            edit_image(image);
+          });
+        })
+      } else {
+        $('#images').hide();
+        $('#no_images').show();
+      }
 
       generate();
     });
@@ -170,7 +178,7 @@ $(document).ready(function() {
 
   function render_placeholder(index) {
     return `
-      <span class="image">
+      <span class="image placeholder">
         <span class="zoom">${index}</span>
       </span>
     `;
@@ -318,7 +326,6 @@ $(document).ready(function() {
   }
 
   function save_card_settings() {
-    console.log('save_card_settings');
     CARD_SETTINGS.background_color = $('#card_background_color').val();
     CARD_SETTINGS.border_color = $('#card_border_color').val();
     CARD_SETTINGS.border_thickness = $('#card_border_thickness').val();

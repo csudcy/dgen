@@ -72,6 +72,7 @@
   text-align: center;
   font-size: 40px;
   padding-top: 40%;
+  color: white;
 }
 
 /************************\
@@ -96,6 +97,11 @@
   font-size: 50px;
 }
 
+.placeholder {
+  border: 1px solid black;
+  background-color: white;
+}
+
 
 /************************\
 * Image list
@@ -116,6 +122,16 @@
 
 #images .image_container .remove {
   top: 5px;
+}
+
+#no_images {
+  margin-top: 50px;
+  display: inline-block;
+  font-size: 32px;
+}
+
+#no_images {
+  display: none;
 }
 
 
@@ -148,10 +164,6 @@
 
 #cards .card_container {
   display: inline-block;
-  height: 400px;
-  width: 400px;
-  border: 6px solid blue;
-  background-color: white;
   border-radius: 100%;
   overflow: hidden;
   position: relative;
