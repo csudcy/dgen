@@ -3,6 +3,7 @@ TODO:
   BUG: Images clipped to zoom box :/
   BUG: Print doesn't do background images
   BUG: Drag & drop when editing doesn't work
+
   Layout editor
   Printing
   Export/import
@@ -23,9 +24,6 @@ $(document).ready(function() {
 
   // Image editing/dragging info
   let EDIT_IMAGE = null;
-  let EDIT_DRAGGING = false;
-  let EDIT_PAGE_X, EDIT_PAGE_Y;
-  let EDIT_IMAGE_X, EDIT_IMAGE_Y;
 
 
   /////////////////////////////
@@ -205,31 +203,14 @@ $(document).ready(function() {
 
     let pc_mult = 100.0 / $('#edit_overlay .edit_image').width();
 
-    $('#edit_overlay .edit_image .zoom').on('mousedown', function(event) {
-      EDIT_DRAGGING = true;
-      EDIT_IMAGE_X = EDIT_IMAGE.x;
-      EDIT_IMAGE_Y = EDIT_IMAGE.y;
-      EDIT_PAGE_X = event.pageX;
-      EDIT_PAGE_Y = event.pageY;
-    });
-
     $('#edit_overlay .edit_image .zoom').on('mousemove', function(event) {
-      if (!EDIT_DRAGGING) return;
+      if (event.buttons != 1) return;
 
-      let new_x = EDIT_IMAGE.x + (event.pageX - EDIT_PAGE_X) * pc_mult;
-      let new_y = EDIT_IMAGE.y + (event.pageY - EDIT_PAGE_Y) * pc_mult;
+      EDIT_IMAGE.x += event.originalEvent.movementX * pc_mult;
+      EDIT_IMAGE.y += event.originalEvent.movementY * pc_mult;
       $('#edit_overlay .edit_image .zoom').css({
-        'transform': `scale(${EDIT_IMAGE.zoom}) translate(${new_x}%, ${new_y}%)`,
+        'transform': `scale(${EDIT_IMAGE.zoom}) translate(${EDIT_IMAGE.x}%, ${EDIT_IMAGE.y}%)`,
       });
-    });
-
-    $('#edit_overlay .edit_image .zoom').on('mouseup', function(event) {
-      if (!EDIT_DRAGGING) return;
-
-      EDIT_DRAGGING = false;
-
-      EDIT_IMAGE.x += (event.pageX - EDIT_PAGE_X) * pc_mult;
-      EDIT_IMAGE.y += (event.pageY - EDIT_PAGE_Y) * pc_mult;
     });
   }
 
