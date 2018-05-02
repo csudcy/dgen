@@ -107,16 +107,24 @@ $(document).ready(function() {
 
   function add_image(file) {
     return new Promise(function(resolve, reject) {
+      // Read the file as a data URL
       let reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = function(){
-        db_put(TABLE_IMAGES, {
-          zoom: 1.0,
-          x: 0,
-          y: 0,
-          background_color: '#ffffff',
-          data: this.result,
-        }).then(resolve);
+        // Put the data URL into an image to get the dimensions
+        let img = new Image();
+        img.src = reader.result;
+        img.onload = function() {
+          db_put(TABLE_IMAGES, {
+            zoom: 1.0,
+            x: 0,
+            y: 0,
+            width: img.width,
+            height: img.height,
+            background_color: '#ffffff',
+            data: reader.result,
+          }).then(resolve);
+        };
       };
     });
   }
