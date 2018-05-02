@@ -1,14 +1,13 @@
 /*
 TODO:
   BUG: Image zoom not centred
-  BUG: Image drag doesn't follow mouse when zoomed
   BUG: Drag & drop when editing doesn't work
 
   Layout editor
   Printing
   Export/import
+  Image edit reset
   Images sets?
-  Card sets?
 */
 
 $(document).ready(function() {
@@ -223,11 +222,11 @@ $(document).ready(function() {
 
     $('#zoom_caption').text(EDIT_IMAGE.zoom);
 
-    let pc_mult = 100.0 / EDIT_IMAGE.width;
 
     $('#edit_overlay .edit_image .image').on('mousemove', function(event) {
       if (event.buttons != 1) return;
 
+      let pc_mult = 100.0 / EDIT_IMAGE.width / EDIT_IMAGE.zoom;
       EDIT_IMAGE.x += event.originalEvent.movementX * pc_mult;
       EDIT_IMAGE.y += event.originalEvent.movementY * pc_mult;
       $('#edit_overlay .edit_image .zoom').css(get_image_css(EDIT_IMAGE));
