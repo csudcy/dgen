@@ -85,16 +85,13 @@
   display: block;
   border-radius: 100%;
   overflow: hidden;
+  position: relative;
 }
 
 .image .zoom {
-  height: 100%;
-  width: 100%;
-  display: block;
-  background-position: center;
-  background-size: cover;
   text-align: center;
   font-size: 50px;
+  position: absolute;
 }
 
 .placeholder {

@@ -1,7 +1,7 @@
 /*
 TODO:
-  BUG: Images clipped to zoom box :/
-  BUG: Print doesn't do background images
+  BUG: Image zoom not centred
+  BUG: Image drag doesn't follow mouse when zoomed
   BUG: Drag & drop when editing doesn't work
 
   Layout editor
@@ -166,17 +166,31 @@ $(document).ready(function() {
     });
   }
 
+  function get_image_css(image) {
+    let image_size = Math.min(image.width, image.height);
+    let zoom_mult = (image.zoom * 100) / image_size;
+
+    return {
+      top: ((image_size - image.height) / 2 + image.y) * zoom_mult + '%',
+      left: ((image_size - image.width) / 2 + image.x) * zoom_mult + '%',
+      width: image.width * zoom_mult + '%',
+      height: image.height * zoom_mult + '%',
+    };
+  }
+
   function render_image(image) {
+    let tlwh = get_image_css(image);
     return `
       <span class="image" style="
         background-color: ${image.background_color};
       ">
-        <span class="zoom" style="
-          background-image: url(${image.data});
-          transform:
-            scale(${image.zoom})
-            translate(${image.x}%, ${image.y}%);
-        "></span>
+        <img class="zoom" src="${image.data}" style="
+          top: ${tlwh.top};
+          left: ${tlwh.left};
+          width: ${tlwh.width};
+          height: ${tlwh.height};
+        "
+        draggable="false"/>
       </span>
     `;
   }
@@ -209,16 +223,14 @@ $(document).ready(function() {
 
     $('#zoom_caption').text(EDIT_IMAGE.zoom);
 
-    let pc_mult = 100.0 / $('#edit_overlay .edit_image').width();
+    let pc_mult = 100.0 / EDIT_IMAGE.width;
 
-    $('#edit_overlay .edit_image .zoom').on('mousemove', function(event) {
+    $('#edit_overlay .edit_image .image').on('mousemove', function(event) {
       if (event.buttons != 1) return;
 
       EDIT_IMAGE.x += event.originalEvent.movementX * pc_mult;
       EDIT_IMAGE.y += event.originalEvent.movementY * pc_mult;
-      $('#edit_overlay .edit_image .zoom').css({
-        'transform': `scale(${EDIT_IMAGE.zoom}) translate(${EDIT_IMAGE.x}%, ${EDIT_IMAGE.y}%)`,
-      });
+      $('#edit_overlay .edit_image .zoom').css(get_image_css(EDIT_IMAGE));
     });
   }
 
