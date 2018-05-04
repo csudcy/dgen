@@ -1,8 +1,5 @@
 /*
 TODO:
-  BUG: Image zoom not centred
-  BUG: Drag & drop when editing doesn't work
-
   Layout editor
   Printing
   Export/import
@@ -168,10 +165,11 @@ $(document).ready(function() {
   function get_image_css(image) {
     let image_size = Math.min(image.width, image.height);
     let zoom_mult = (image.zoom * 100) / image_size;
+    let offset = 50 - image.zoom * 50;
 
     return {
-      top: ((image_size - image.height) / 2 + image.y) * zoom_mult + '%',
-      left: ((image_size - image.width) / 2 + image.x) * zoom_mult + '%',
+      top: ((image_size - image.height) / 2 + image.y) * zoom_mult + offset + '%',
+      left: ((image_size - image.width) / 2 + image.x) * zoom_mult + offset + '%',
       width: image.width * zoom_mult + '%',
       height: image.height * zoom_mult + '%',
     };
