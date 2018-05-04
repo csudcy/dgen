@@ -169,6 +169,7 @@
   border-radius: 100%;
   overflow: hidden;
   position: relative;
+  margin: 5px;
 }
 
 
@@ -204,4 +205,22 @@
 
 #zoom {
   width: 250px;
+}
+
+
+/************************\
+* Printing
+\************************/
+
+@media print {
+  #left, #generate_settings {
+    display: none !important;
+  }
+
+  #right, #cards {
+    border: none;
+    height: 100%;
+    width: 100%;
+    position: unset;
+  }
 }

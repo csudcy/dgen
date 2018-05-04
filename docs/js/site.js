@@ -1,7 +1,6 @@
 /*
 TODO:
   Layout editor
-  Printing
   Export/import
   Image edit reset
   Images sets?
@@ -312,7 +311,7 @@ $(document).ready(function() {
           border_color: '#00ff00',
           border_thickness: 6,
           order: 3,
-          radius: 200,
+          radius: 150,
         };
       }
 
