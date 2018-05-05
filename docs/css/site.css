@@ -19,25 +19,18 @@
 
 .button, .big_button {
   position: absolute;
+  top: 5px;
   right: 5px;
-  display: block;
-  border-radius: 100%;
-  border: 1px solid black;
-  background-color: lightblue;
-  font-weight: bold;
+  color: lightseagreen;
   cursor: pointer;
-  text-align: center;
 }
 
 .button {
-  height: 15px;
-  width: 15px;
+  font-size: 20px;
 }
 
 .big_button {
-  height: 35px;
-  width: 35px;
-  font-size: 25px;
+  font-size: 40px;
 }
 
 
@@ -180,17 +173,14 @@
 }
 
 #layouts .card_container .edit {
-  top: 5px;
-  right: 45px;
+  right: 55px;
 }
 
 #layouts .card_container .duplicate {
-  top: 5px;
-  right: 25px;
+  right: 30px;
 }
 
 #layouts .card_container .remove {
-  top: 5px;
 }
 
 
@@ -270,6 +260,7 @@
   display: inline-block;
   font-size: 30px;
   text-align: left;
+  color: white;
 }
 
 #settings_overlay .settings input {
