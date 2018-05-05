@@ -21,8 +21,10 @@ SETTINGS = {
   2: Settings(2, False, 2),
   3: Settings(3, False, 2.154),
   4: Settings(4, False, 2.414),
+  5: Settings(5, False, 2.701),
   6: Settings(6, False, 3),
-  # 8: Settings(8, True, 3.304),
+  7: Settings(7, True, 3),
+  8: Settings(8, True, 3.304),
 }
 
 def n_choose_k(n, k):
