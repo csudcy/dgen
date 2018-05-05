@@ -77,7 +77,7 @@ def make_layout(settings):
     tl_x = CARD_RADIUS + math.sin(angle) * offset - image_radius
     tl_y = CARD_RADIUS + math.cos(angle) * offset - image_radius
 
-    positions.append([tl_x, tl_y])
+    positions.append([tl_x, tl_y, image_radius])
 
   # If there is a centre image, place it now
   if centre_image:
@@ -97,7 +97,6 @@ def generate():
     info.items_per_card: {
       'items_per_card': info.items_per_card,
       'items_required': info.items_required,
-      'image_radius': info.image_radius,
       'combinations': [
         list(combo)
         for combo in make_combos(info)

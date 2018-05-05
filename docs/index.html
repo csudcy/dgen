@@ -19,7 +19,6 @@
       <select id="card_order"></select>
     </div>
 
-
     <div id="main">
       <div id="no_images">
         Welcome to DGen!
@@ -38,21 +37,34 @@
     </div>
 
 
-
-
     <div id="images_overlay" class="overlay">
       <span class="big_button close_overlay">X</span>
       <h1>Images</h1>
       <div id="images"></div>
     </div>
 
+    <div id="edit_image_overlay" class="overlay">
+      <span class="edit_image">
+      </span>
+      <span class="settings_container">
+        Image Zoom: <span id="zoom_caption"></span>x
+        <br/>
+        <input type="range" min="0.1" max="5" step="0.01" id="zoom">
+        <br/>
+        Background colour: <input type="color" class="background_color">
+        <br/>
+        <button class="apply">Save Changes</button>
+        <button class="cancel">Cancel Changes</button>
+      </span>
+    </div>
+
+
     <div id="layouts_overlay" class="overlay">
       <span class="big_button close_overlay">X</span>
       <h1>Layouts</h1>
-      <span class="layouts">
-        Layouts go here...
-      </span>
+      <div id="layouts"></div>
     </div>
+
 
     <div id="settings_overlay" class="overlay">
       <span class="big_button close_overlay">X</span>
@@ -75,20 +87,6 @@
       </span>
     </div>
 
-    <div id="edit_image_overlay" class="overlay">
-      <span class="edit_image">
-      </span>
-      <span class="settings_container">
-        Image Zoom: <span id="zoom_caption"></span>x
-        <br/>
-        <input type="range" min="0.1" max="5" step="0.01" id="zoom">
-        <br/>
-        Background colour: <input type="color" class="background_color">
-        <br/>
-        <button class="apply">Save Changes</button>
-        <button class="cancel">Cancel Changes</button>
-      </span>
-    </div>
 
     <div id="drag_overlay" class="overlay">
       Drop images here to add them to the available images!

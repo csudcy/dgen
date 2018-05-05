@@ -145,6 +145,32 @@ $(document).ready(function() {
 
 
   /////////////////////////////
+  // Card Rendering
+  /////////////////////////////
+
+  function render_card(layout, rendered_images, combination, maximum_rotation) {
+    let card = $('<span class="card"></span>');
+
+    $.each(combination, function(index, image_index) {
+      let position = layout[index];
+      let rotation = Math.floor(Math.random() * maximum_rotation);
+      card.append(
+        $(rendered_images[image_index])
+          .css({
+            'top': `${position[1]}%`,
+            'left': `${position[0]}%`,
+            'width': `${position[2]*2}%`,
+            'height': `${position[2]*2}%`,
+            'position': 'absolute',
+            'transform': `rotate(${rotation}deg)`,
+          }));
+    });
+
+    return card;
+  }
+
+
+  /////////////////////////////
   // Image Management
   /////////////////////////////
 
@@ -258,7 +284,12 @@ $(document).ready(function() {
         .empty()
         .append(
           $.map(settings.combinations, function(combination) {
-            return generate_card(settings, rendered_images, combination);
+            return render_card(settings.layout, rendered_images, combination, 360).css({
+              'height': `${2*CARD_SETTINGS.radius}px`,
+              'width': `${2*CARD_SETTINGS.radius}px`,
+              'border': `${CARD_SETTINGS.border_thickness}px solid ${CARD_SETTINGS.border_color}`,
+              'background-color': `${CARD_SETTINGS.background_color}`,
+            });
           }));
     });
   }
@@ -271,32 +302,6 @@ $(document).ready(function() {
       array[i] = array[j];
       array[j] = temp;
     }
-  }
-
-  function generate_card(settings, rendered_images, combination) {
-    let card_container = $('<span class="card_container"></span>').css({
-      'height': `${2*CARD_SETTINGS.radius}px`,
-      'width': `${2*CARD_SETTINGS.radius}px`,
-      'border': `${CARD_SETTINGS.border_thickness}px solid ${CARD_SETTINGS.border_color}`,
-      'background-color': `${CARD_SETTINGS.background_color}`,
-    });
-
-    $.each(combination, function(index, image_index) {
-      let layout = settings.layout[index];
-      let rotation = Math.floor(Math.random() * 360.0);
-      card_container.append(
-        $(rendered_images[image_index])
-          .css({
-            'top': `${layout[1]}%`,
-            'left': `${layout[0]}%`,
-            'width': `${settings.image_radius*2}%`,
-            'height': `${settings.image_radius*2}%`,
-            'position': 'absolute',
-            'transform': `rotate(${rotation}deg)`,
-          }));
-    });
-
-    return card_container;
   }
 
 
@@ -340,6 +345,35 @@ $(document).ready(function() {
 
 
   /////////////////////////////
+  // Layout Editing
+  /////////////////////////////
+
+  function show_layouts() {
+    $('#layouts')
+      .empty()
+      .append(
+        $.map(SETTINGS, function(settings, key) {
+          // Generate all the images/placeholders
+          let placeholder_images = [];
+          for (let i=0; i<settings.items_per_card; i++) {
+            placeholder_images.push(render_placeholder(i+1));
+          }
+
+          // Generate the layout
+          let card_element = render_card(settings.layout, placeholder_images, settings.combinations[0], 0);
+
+          return $(`
+            <span class="card_container" data-type="default" data-key="${key}">
+              <span class="button edit">E</span>
+              <span class="button duplicate">D</span>
+              <span class="button remove">X</span>
+            </span>
+          `).prepend(card_element);
+        })
+      );
+  }
+
+  /////////////////////////////
   // Init functions
   /////////////////////////////
 
@@ -355,12 +389,12 @@ $(document).ready(function() {
 
     $('#edit_layouts').on('click', function() {
       $('#layouts_overlay').show();
+      show_layouts();
     });
 
     $('#edit_settings').on('click', function() {
       $('#settings_overlay').show();
     });
-
   }
 
   function init_image_ui() {
@@ -396,7 +430,7 @@ $(document).ready(function() {
         return `<option>${count}</option>`;
       }));
 
-    $('#settings_overlay input, #generate_settings select').on('change, input', save_card_settings);
+    $('#settings_overlay input, #card_order').on('change, input', save_card_settings);
   }
 
   function init_edit_image_ui() {
