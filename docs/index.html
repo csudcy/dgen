@@ -8,41 +8,71 @@
     <script type="text/javascript" src="js/site.js"></script>
   </head>
   <body>
-    <div id="left">
-      <h1>DGen</h1>
-      <div id="images"></div>
-      <span id="no_images">
-        Drag &amp; drop some pictures onto the page to add them here!
-        <br/>
-        <br/>
-        You can then click images to edit them.
-      </span>
+    <div id="top">
+      <span class="title">DGen</span>
+
+      <button id="edit_images">Edit Images</button>
+      <button id="edit_layouts">Edit Layouts</button>
+      <button id="edit_settings">Edit Settings</button>
+
+      <label for="card_order">Layout:</label>
+      <select id="card_order"></select>
     </div>
 
-    <div id="right">
-      <div id="generate_settings">
-        <label for="card_border_color">Border:</label>
-        <input type="color" id="card_border_color">
 
-        <label for="card_radius">Card Radius:</label>
-        <input type="number" id="card_radius" min="100" max="1000" step="25">
-
-        <label for="card_border_thickness">Border Thickness:</label>
-        <input type="number" id="card_border_thickness" min="1" max="20">
+    <div id="main">
+      <div id="no_images">
+        Welcome to DGen!
         <br/>
-
-        <label for="card_background_color">Background:</label>
-        <input type="color" id="card_background_color">
-
-        <label for="card_order">Items per card:</label>
-        <select id="card_order"></select>
-
-        <button id="generate">Generate!</button>
-
-        <button id="edit_layouts">Edit Layouts</button>
+        <br/>
+        You can use DGen to generate Dobble like playing cards.
+        <br/>
+        <br/>
+        Drag &amp; drop some pictures onto the page to get started!
+        <br/>
+        <br/>
+        Click the edit buttons above to see customise your cards.
       </div>
 
       <div id="cards"></div>
+    </div>
+
+
+
+
+    <div id="images_overlay" class="overlay">
+      <span class="big_button close_overlay">X</span>
+      <h1>Images</h1>
+      <div id="images"></div>
+    </div>
+
+    <div id="layouts_overlay" class="overlay">
+      <span class="big_button close_overlay">X</span>
+      <h1>Layouts</h1>
+      <span class="layouts">
+        Layouts go here...
+      </span>
+    </div>
+
+    <div id="settings_overlay" class="overlay">
+      <span class="big_button close_overlay">X</span>
+      <h1>Settings</h1>
+      <span class="settings">
+        <input type="number" id="card_radius" min="100" max="1000" step="25">
+        <label for="card_radius">Card Radius</label>
+        <br/>
+
+        <input type="number" id="card_border_thickness" min="1" max="20">
+        <label for="card_border_thickness">Border Thickness</label>
+        <br/>
+
+        <input type="color" id="card_border_color">
+        <label for="card_border_color">Border Colour</label>
+        <br/>
+
+        <input type="color" id="card_background_color">
+        <label for="card_background_color">Background Colour</label>
+      </span>
     </div>
 
     <div id="edit_image_overlay" class="overlay">
@@ -57,14 +87,6 @@
         <br/>
         <button class="apply">Save Changes</button>
         <button class="cancel">Cancel Changes</button>
-      </span>
-    </div>
-
-    <div id="edit_layouts_overlay" class="overlay">
-      <span class="big_button close">X</span>
-      <h1>Layout editing</h1>
-      <span class="images">
-        Images go here...
       </span>
     </div>
 

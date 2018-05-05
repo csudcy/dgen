@@ -13,6 +13,10 @@
   color: white;
 }
 
+.overlay h1 {
+  text-align: center;
+}
+
 .button, .big_button {
   position: absolute;
   right: 5px;
@@ -37,53 +41,6 @@
   font-size: 25px;
 }
 
-
-/************************\
-* Page layout
-\************************/
-
-#left {
-  position: absolute;
-  top: 0px;
-  bottom: 0px;
-  left: 0px;
-  width: 230px;
-  border: 1px solid black;
-}
-
-#right {
-  position: absolute;
-  top: 0px;
-  bottom: 0px;
-  left: 230px;
-  right: 0px;
-  border: 1px solid black;
-}
-
-#images {
-  position: absolute;
-  top: 50px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  overflow: scroll;
-}
-
-#cards {
-  position: absolute;
-  top: 50px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-  overflow: scroll;
-  border: 1px solid black;
-}
-
-#drag_overlay {
-  text-align: center;
-  font-size: 40px;
-  padding-top: 40%;
-}
 
 /************************\
 * All images
@@ -116,12 +73,68 @@
 
 
 /************************\
-* Image list
+* Main Page
+\************************/
+
+#top {
+  position: absolute;
+  top: 0px;
+  height: 60px;
+  left: 0px;
+  right: 0px;
+  border: 1px solid black;
+}
+
+#top .title {
+  font-size: 32px;
+  padding: 8px;
+  display: inline-block;
+  padding-right: 20px;
+}
+
+#top button {
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+#top label {
+  font-size: 24px;
+}
+
+#top select {
+  font-size: 24px;
+  width: 150px;
+}
+
+#main {
+  position: absolute;
+  top: 60px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  border: 1px solid black;
+  overflow: scroll;
+}
+
+
+/************************\
+* Drag Overlay
+\************************/
+
+#drag_overlay {
+  text-align: center;
+  font-size: 40px;
+  padding-top: 40%;
+}
+
+
+/************************\
+* Image Overlay
 \************************/
 
 #images .image_container {
-  height: 100px;
-  width: 100px;
+  height: 200px;
+  width: 200px;
   padding: 5px;
   position: relative;
   display: inline-block;
@@ -137,36 +150,33 @@
 }
 
 #no_images {
-  margin-top: 50px;
-  display: inline-block;
-  font-size: 32px;
-}
-
-#no_images {
   display: none;
+  padding: 25px;
+  font-size: 32px;
+  text-align: center;
+  font-weight: bold;
+  background-color: lightseagreen;
 }
 
 
 /************************\
-* Generator settings
+* Settings Overlay
 \************************/
 
-#generate_settings {
-  margin-left: 10px;
+#settings_overlay {
+  text-align: center;
 }
 
-#generate_settings label {
-  min-width: 100px;
+#settings_overlay .settings {
   display: inline-block;
+  font-size: 30px;
+  text-align: left;
 }
 
-#generate_settings input, #generate_settings select {
-  width: 40px;
+#settings_overlay .settings input {
+  width: 60px;
   margin-right: 10px;
-}
-
-#generate_settings button {
-  width: 170px;
+  font-size: 18px;
 }
 
 
@@ -223,11 +233,11 @@
 \************************/
 
 @media print {
-  #left, #generate_settings {
+  #top {
     display: none !important;
   }
 
-  #right, #cards {
+  #cards {
     border: none;
     height: 100%;
     width: 100%;

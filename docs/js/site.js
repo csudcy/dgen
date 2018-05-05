@@ -343,6 +343,26 @@ $(document).ready(function() {
   // Init functions
   /////////////////////////////
 
+  function init_general_ui() {
+    $('.close_overlay').on('click', function() {
+      $(this).parent().hide();
+    });
+
+
+    $('#edit_images').on('click', function() {
+      $('#images_overlay').show();
+    });
+
+    $('#edit_layouts').on('click', function() {
+      $('#layouts_overlay').show();
+    });
+
+    $('#edit_settings').on('click', function() {
+      $('#settings_overlay').show();
+    });
+
+  }
+
   function init_image_ui() {
     // Add drag/drop handling
     $('html').on('dragover', function(event) {
@@ -376,15 +396,7 @@ $(document).ready(function() {
         return `<option>${count}</option>`;
       }));
 
-    $('#generate').on('click', function() {
-      generate();
-    });
-
-    $('#edit_layouts').on('click', function() {
-      $('#edit_layouts_overlay').show();
-    });
-
-    $('#generate_settings input, #generate_settings select').on('change, input', save_card_settings);
+    $('#settings_overlay input, #generate_settings select').on('change, input', save_card_settings);
   }
 
   function init_edit_image_ui() {
@@ -413,18 +425,19 @@ $(document).ready(function() {
   }
 
   function init_edit_layout_ui() {
-    $('#edit_layouts_overlay .close').on('click', function() {
-      $('#edit_layouts_overlay').hide();
-    });
   }
 
   /////////////////////////////
   // Init everything
   /////////////////////////////
 
+  // Database
   init_database();
   load_card_settings();
   show_images();
+
+  // UI
+  init_general_ui();
   init_image_ui();
   init_generate_ui();
   init_edit_image_ui();
