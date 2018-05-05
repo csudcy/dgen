@@ -12,6 +12,7 @@ $(document).ready(function() {
   // Database variables
   const TABLE_IMAGES = 'images';
   const TABLE_CARD_SETTINGS = 'card_settings';
+  const TABLE_LAYOUTS = 'layouts';
   let DB = null;
 
   // Settings
@@ -52,7 +53,7 @@ $(document).ready(function() {
 
   function init_database() {
     DB = new Promise(function(resolve, reject) {
-      let open = indexedDB.open('dgen', 2);
+      let open = indexedDB.open('dgen', 3);
 
       // Create the schema
       open.onupgradeneeded = function() {
@@ -64,6 +65,10 @@ $(document).ready(function() {
 
         if (!upgradeDb.objectStoreNames.contains(TABLE_CARD_SETTINGS)) {
           upgradeDb.createObjectStore(TABLE_CARD_SETTINGS, {keyPath: 'id', autoIncrement: true});
+        }
+
+        if (!upgradeDb.objectStoreNames.contains(TABLE_LAYOUTS)) {
+          upgradeDb.createObjectStore(TABLE_LAYOUTS, {keyPath: 'id', autoIncrement: true});
         }
       };
 
@@ -93,6 +98,49 @@ $(document).ready(function() {
     return _db_request(table, 'readwrite', function(store) {
       return store.delete(key);
     });
+  }
+
+
+  /////////////////////////////
+  // Image Rendering
+  /////////////////////////////
+
+  function get_image_css(image) {
+    let image_size = Math.min(image.width, image.height);
+    let zoom_mult = (image.zoom * 100) / image_size;
+    let offset = 50 - image.zoom * 50;
+
+    return {
+      top: ((image_size - image.height) / 2 + image.y) * zoom_mult + offset + '%',
+      left: ((image_size - image.width) / 2 + image.x) * zoom_mult + offset + '%',
+      width: image.width * zoom_mult + '%',
+      height: image.height * zoom_mult + '%',
+    };
+  }
+
+  function render_image(image) {
+    let tlwh = get_image_css(image);
+    return `
+      <span class="image" style="
+        background-color: ${image.background_color};
+      ">
+        <img class="zoom" src="${image.data}" style="
+          top: ${tlwh.top};
+          left: ${tlwh.left};
+          width: ${tlwh.width};
+          height: ${tlwh.height};
+        "
+        draggable="false"/>
+      </span>
+    `;
+  }
+
+  function render_placeholder(index) {
+    return `
+      <span class="image placeholder">
+        <span class="zoom">${index}</span>
+      </span>
+    `;
   }
 
 
@@ -161,72 +209,29 @@ $(document).ready(function() {
     });
   }
 
-  function get_image_css(image) {
-    let image_size = Math.min(image.width, image.height);
-    let zoom_mult = (image.zoom * 100) / image_size;
-    let offset = 50 - image.zoom * 50;
-
-    return {
-      top: ((image_size - image.height) / 2 + image.y) * zoom_mult + offset + '%',
-      left: ((image_size - image.width) / 2 + image.x) * zoom_mult + offset + '%',
-      width: image.width * zoom_mult + '%',
-      height: image.height * zoom_mult + '%',
-    };
-  }
-
-  function render_image(image) {
-    let tlwh = get_image_css(image);
-    return `
-      <span class="image" style="
-        background-color: ${image.background_color};
-      ">
-        <img class="zoom" src="${image.data}" style="
-          top: ${tlwh.top};
-          left: ${tlwh.left};
-          width: ${tlwh.width};
-          height: ${tlwh.height};
-        "
-        draggable="false"/>
-      </span>
-    `;
-  }
-
-  function render_placeholder(index) {
-    return `
-      <span class="image placeholder">
-        <span class="zoom">${index}</span>
-      </span>
-    `;
-  }
-
-
-  /////////////////////////////
-  // Image Editing
-  /////////////////////////////
-
   function edit_image(image) {
     EDIT_IMAGE = image;
     show_edit_image();
-    $('#edit_overlay #zoom').val(image.zoom);
-    $('#edit_overlay .background_color').val(image.background_color);
-    $('#edit_overlay').show();
+    $('#edit_image_overlay #zoom').val(image.zoom);
+    $('#edit_image_overlay .background_color').val(image.background_color);
+    $('#edit_image_overlay').show();
   }
 
   function show_edit_image() {
-    $('#edit_overlay .edit_image')
+    $('#edit_image_overlay .edit_image')
       .empty()
       .append(render_image(EDIT_IMAGE));
 
     $('#zoom_caption').text(EDIT_IMAGE.zoom);
 
 
-    $('#edit_overlay .edit_image .image').on('mousemove', function(event) {
+    $('#edit_image_overlay .edit_image .image').on('mousemove', function(event) {
       if (event.buttons != 1) return;
 
       let pc_mult = 100.0 / EDIT_IMAGE.width / EDIT_IMAGE.zoom;
       EDIT_IMAGE.x += event.originalEvent.movementX * pc_mult;
       EDIT_IMAGE.y += event.originalEvent.movementY * pc_mult;
-      $('#edit_overlay .edit_image .zoom').css(get_image_css(EDIT_IMAGE));
+      $('#edit_image_overlay .edit_image .zoom').css(get_image_css(EDIT_IMAGE));
     });
   }
 
@@ -375,34 +380,43 @@ $(document).ready(function() {
       generate();
     });
 
+    $('#edit_layouts').on('click', function() {
+      $('#edit_layouts_overlay').show();
+    });
+
     $('#generate_settings input, #generate_settings select').on('change, input', save_card_settings);
   }
 
-  function init_edit_ui() {
-    $('#edit_overlay .apply').on('click', function() {
+  function init_edit_image_ui() {
+    $('#edit_image_overlay .apply').on('click', function() {
       db_put(TABLE_IMAGES, EDIT_IMAGE).then(function() {
         EDIT_IMAGE = null;
-        $('#edit_overlay').hide();
+        $('#edit_image_overlay').hide();
         show_images();
       });
     });
 
-    $('#edit_overlay .cancel').on('click', function() {
+    $('#edit_image_overlay .cancel').on('click', function() {
       EDIT_IMAGE = null;
-      $('#edit_overlay').hide();
+      $('#edit_image_overlay').hide();
     });
 
-    $('#edit_overlay #zoom').on('change, input', function() {
+    $('#edit_image_overlay #zoom').on('change, input', function() {
       EDIT_IMAGE.zoom = $(this).val();
       show_edit_image();
     });
 
-    $('#edit_overlay .background_color').on('change', function() {
+    $('#edit_image_overlay .background_color').on('change', function() {
       EDIT_IMAGE.background_color = $(this).val();
       show_edit_image();
     });
   }
 
+  function init_edit_layout_ui() {
+    $('#edit_layouts_overlay .close').on('click', function() {
+      $('#edit_layouts_overlay').hide();
+    });
+  }
 
   /////////////////////////////
   // Init everything
@@ -413,5 +427,6 @@ $(document).ready(function() {
   show_images();
   init_image_ui();
   init_generate_ui();
-  init_edit_ui();
+  init_edit_image_ui();
+  init_edit_layout_ui();
 });

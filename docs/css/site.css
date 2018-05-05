@@ -13,10 +13,8 @@
   color: white;
 }
 
-.button {
+.button, .big_button {
   position: absolute;
-  height: 15px;
-  width: 15px;
   right: 5px;
   display: block;
   border-radius: 100%;
@@ -25,6 +23,18 @@
   font-weight: bold;
   cursor: pointer;
   text-align: center;
+  color: black;
+}
+
+.button {
+  height: 15px;
+  width: 15px;
+}
+
+.big_button {
+  height: 35px;
+  width: 35px;
+  font-size: 25px;
 }
 
 
@@ -177,11 +187,11 @@
 * Image editing
 \************************/
 
-#edit_overlay .remove {
+#edit_image_overlay .remove {
   top: 5px;
 }
 
-#edit_overlay .edit_image {
+#edit_image_overlay .edit_image {
   display: block;
   margin: auto;
   height: 500px;
@@ -189,17 +199,17 @@
   margin-top: 25px;
 }
 
-#edit_overlay .edit_image .image .zoom {
+#edit_image_overlay .edit_image .image .zoom {
   cursor: all-scroll;
 }
 
-#edit_overlay .settings_container {
+#edit_image_overlay .settings_container {
   display: block;
   text-align: center;
   font-size: 30px;
 }
 
-#edit_overlay .settings_container button {
+#edit_image_overlay .settings_container button {
   font-size: 30px;
 }
 
