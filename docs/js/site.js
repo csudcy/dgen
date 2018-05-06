@@ -220,14 +220,14 @@ $(document).ready(function() {
         $('#images .remove').on('click', function() {
           let image_id = $(this).parent().data('id');
           db_remove(TABLE_IMAGES, image_id).then(show_images);
-        })
+        });
 
         $('#images .image').on('click', function() {
           let image_id = $(this).parent().data('id');
           db_get(TABLE_IMAGES, image_id).then(function(image) {
             edit_image(image);
           });
-        })
+        });
       } else {
         $('#images').hide();
         $('#no_images').show();
@@ -350,37 +350,113 @@ $(document).ready(function() {
   // Layout Editing
   /////////////////////////////
 
+  function get_layouts() {
+    return new Promise(function(resolve, reject) {
+      db_fetch(TABLE_LAYOUTS).then(function(db_layouts) {
+        resolve($.map(SETTINGS, function(settings, key) {
+          return {
+            'type': 'default',
+            'id': key,
+            'name': `Default ${key}`,
+            'layout': settings.layout,
+          };
+        }).concat(db_layouts));
+      });
+    });
+  }
+
+  function render_layout(settings) {
+    // Generate all the images/placeholders
+    let placeholder_images = [];
+    let combination = [];
+    for (let i=0; i<settings.layout.length; i++) {
+      placeholder_images.push(render_placeholder(i+1));
+      combination.push(i);
+    }
+
+    // Generate the layout
+    let card_element = render_card(settings.layout, placeholder_images, combination, 0);
+    return $(`
+      <span class="card_container" data-type="${settings.type}" data-id="${settings.id}">
+        <span class="buttons">
+          <span class="button edit">
+            <i class="fas fa-pencil-alt"></i>
+          </span>
+          <span class="button duplicate">
+            <i class="fas fa-copy"></i>
+          </span>
+          <span class="button remove">
+            <i class="fas fa-trash-alt"></i>
+          </span>
+        </span>
+      </span>
+    `).prepend(card_element);
+  }
+
   function show_layouts() {
-    $('#layouts')
-      .empty()
-      .append(
-        $.map(SETTINGS, function(settings, key) {
-          // Generate all the images/placeholders
-          let placeholder_images = [];
-          for (let i=0; i<settings.items_per_card; i++) {
-            placeholder_images.push(render_placeholder(i+1));
+    get_layouts().then(function(layouts) {
+      $('#layouts')
+        .empty()
+        .append($.map(layouts, render_layout));
+
+      $('#layouts .edit').on('click', function() {
+        get_layout_from_button(this).then(function(layout) {
+          if (layout.type == 'default') {
+            alert('You cannot edit default layouts! Try duplicating it first.');
+          } else {
+            console.log('TODO: Edit DB layout');
+            // db_get(TABLE_LAYOUTS, layout_id).then(function(layout) {
+            //   edit_layout(layout);
+            // });
           }
-
-          // Generate the layout
-          let card_element = render_card(settings.layout, placeholder_images, settings.combinations[0], 0);
-
-          return $(`
-            <span class="card_container" data-type="default" data-key="${key}">
-              <span class="buttons">
-                <span class="button edit">
-                  <i class="fas fa-pencil-alt"></i>
-                </span>
-                <span class="button duplicate">
-                  <i class="fas fa-copy"></i>
-                </span>
-                <span class="button remove">
-                  <i class="fas fa-trash-alt"></i>
-                </span>
-              </span>
-            </span>
-          `).prepend(card_element);
         })
-      );
+      });
+
+      $('#layouts .duplicate').on('click', function() {
+        get_layout_from_button(this).then(function(layout) {
+          // Create a new layout
+          let new_layout = {
+            'name': `Copy of ${layout.name}`,
+            'type': 'database',
+            'layout': layout.layout,
+          };
+
+          db_put(TABLE_LAYOUTS, new_layout).then(function() {
+            show_layouts();
+            alert(`Duplicated to "${new_layout.name}"!`);
+          });
+        });
+      });
+
+      $('#layouts .remove').on('click', function() {
+        get_layout_from_button(this).then(function(layout) {
+          if (layout.type == 'default') {
+            alert('You cannot remove default layouts!');
+          } else {
+            db_remove(TABLE_LAYOUTS, layout.id).then(show_layouts);
+          }
+        });
+      });
+    });
+  }
+
+  function get_layout_from_button(button) {
+    return new Promise(function(resolve, reject) {
+      get_layouts().then(function(layouts) {
+        let layout_element = $(button).parent().parent();
+        let layout_type = layout_element.data('type');
+        let layout_id = layout_element.data('id');
+        let filtered_layouts = $.grep(layouts, function(layout) {
+          return (layout.type == layout_type) && (layout.id == layout_id);
+        });
+
+        if (!filtered_layouts) {
+          throw new Error(`Could not find layout "${layout_id}" of type "${layout_type}"!`);
+        }
+
+        resolve(filtered_layouts[0]);
+      });
+    });
   }
 
   /////////////////////////////
