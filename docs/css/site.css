@@ -282,11 +282,9 @@
   display: block;
 }
 
-/*
-#edit_layout_overlay .settings_container button {
-  font-size: 30px;
+#edit_layout_overlay .name {
+  font-size: 20px;
 }
-*/
 
 /************************\
 * Settings Overlay

@@ -483,23 +483,31 @@ $(document).ready(function() {
           return `
             <span class="layout_zoom" data-index=${index}>
               ${index+1}:
-              <input type="range" min="0.1" max="5" step="0.01" class="zoom_input" value="${position[2]}"/>
-              <span class="zoom_caption">${position[2]}</span>x
+              <input type="range" min="0.01" max="1" step="0.01" class="zoom_input" value="${position[2]/100}"/>
+              <span class="zoom_caption">${Math.floor(position[2])/100}</span>x
             </span>
           `;
         }));
 
-    // $('#zoom_caption').text(EDIT_LAYOUT.zoom);
+    $('#edit_layout_overlay .zoom_input').on('change, input', function() {
+      console.log('TODO: Set layout zoom');
+      // EDIT_LAYOUT.zoom = $(this).val();
+      // show_edit_layout();
+    });
+
+    $('#edit_layout_overlay .name').val(EDIT_LAYOUT.name);
 
 
-    // $('#edit_layout_overlay .edit_layout .layout').on('mousemove', function(event) {
-    //   if (event.buttons != 1) return;
+    $('#edit_layout_overlay .edit_layout .card').on('mousemove', function(event) {
+      if (event.buttons != 1) return;
 
-    //   let pc_mult = 100.0 / EDIT_LAYOUT.width / EDIT_LAYOUT.zoom;
-    //   EDIT_LAYOUT.x += event.originalEvent.movementX * pc_mult;
-    //   EDIT_LAYOUT.y += event.originalEvent.movementY * pc_mult;
-    //   $('#edit_layout_overlay .edit_layout .zoom').css(get_layout_css(EDIT_LAYOUT));
-    // });
+      console.log('TODO: Set layout position');
+
+      // let pc_mult = 100.0 / EDIT_LAYOUT.width / EDIT_LAYOUT.zoom;
+      // EDIT_LAYOUT.x += event.originalEvent.movementX * pc_mult;
+      // EDIT_LAYOUT.y += event.originalEvent.movementY * pc_mult;
+      // $('#edit_layout_overlay .edit_layout .zoom').css(get_layout_css(EDIT_LAYOUT));
+    });
   }
 
 
@@ -589,6 +597,18 @@ $(document).ready(function() {
   }
 
   function init_edit_layout_ui() {
+    $('#edit_layout_overlay .apply').on('click', function() {
+      db_put(TABLE_LAYOUTS, EDIT_LAYOUT).then(function() {
+        EDIT_LAYOUT = null;
+        $('#edit_layout_overlay').hide();
+        show_layouts();
+      });
+    });
+
+    $('#edit_layout_overlay .cancel').on('click', function() {
+      EDIT_LAYOUT = null;
+      $('#edit_layout_overlay').hide();
+    });
   }
 
   /////////////////////////////
