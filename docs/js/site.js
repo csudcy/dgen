@@ -1,6 +1,7 @@
 /*
 TODO:
   Layout editor
+  Pinch zoom
   Export/import
   Image edit reset
   Images sets?
@@ -18,8 +19,11 @@ $(document).ready(function() {
   // Settings
   let CARD_SETTINGS = null;
 
-  // Image editing/dragging info
+  // Image being edited
   let EDIT_IMAGE = null;
+
+  // Layout being edited
+  let EDIT_LAYOUT = null;
 
 
   /////////////////////////////
@@ -137,8 +141,8 @@ $(document).ready(function() {
 
   function render_placeholder(index) {
     return `
-      <span class="image placeholder">
-        <span class="zoom">${index}</span>
+      <span class="image placeholder" data-index="${index}">
+        <span class="zoom">${index+1}</span>
       </span>
     `;
   }
@@ -240,7 +244,7 @@ $(document).ready(function() {
   function edit_image(image) {
     EDIT_IMAGE = image;
     show_edit_image();
-    $('#edit_image_overlay #zoom').val(image.zoom);
+    $('#edit_image_overlay .zoom_input').val(image.zoom);
     $('#edit_image_overlay .background_color').val(image.background_color);
     $('#edit_image_overlay').show();
   }
@@ -250,7 +254,7 @@ $(document).ready(function() {
       .empty()
       .append(render_image(EDIT_IMAGE));
 
-    $('#zoom_caption').text(EDIT_IMAGE.zoom);
+    $('#edit_image_overlay .zoom_caption').text(EDIT_IMAGE.zoom);
 
 
     $('#edit_image_overlay .edit_image .image').on('mousemove', function(event) {
@@ -358,56 +362,55 @@ $(document).ready(function() {
             'type': 'default',
             'id': key,
             'name': `Default ${key}`,
-            'layout': settings.layout,
+            'positions': settings.layout,
           };
         }).concat(db_layouts));
       });
     });
   }
 
-  function render_layout(settings) {
+  function render_layout(positions) {
     // Generate all the images/placeholders
-    let placeholder_images = [];
-    let combination = [];
-    for (let i=0; i<settings.layout.length; i++) {
-      placeholder_images.push(render_placeholder(i+1));
-      combination.push(i);
-    }
+    let placeholder_images = $.map(positions, function(position, index) {
+      return render_placeholder(index);
+    });
+    let combination = $.map(positions, function(position, index) {
+      return index;
+    });
 
     // Generate the layout
-    let card_element = render_card(settings.layout, placeholder_images, combination, 0);
-    return $(`
-      <span class="card_container" data-type="${settings.type}" data-id="${settings.id}">
-        <span class="buttons">
-          <span class="button edit">
-            <i class="fas fa-pencil-alt"></i>
-          </span>
-          <span class="button duplicate">
-            <i class="fas fa-copy"></i>
-          </span>
-          <span class="button remove">
-            <i class="fas fa-trash-alt"></i>
-          </span>
-        </span>
-      </span>
-    `).prepend(card_element);
+    return render_card(positions, placeholder_images, combination, 0);
   }
 
   function show_layouts() {
     get_layouts().then(function(layouts) {
       $('#layouts')
         .empty()
-        .append($.map(layouts, render_layout));
+        .append($.map(layouts, function(layout) {
+          let card_element = render_layout(layout.positions);
+          return $(`
+            <span class="card_container" data-type="${layout.type}" data-id="${layout.id}">
+              <span class="buttons">
+                <span class="button edit">
+                  <i class="fas fa-pencil-alt"></i>
+                </span>
+                <span class="button duplicate">
+                  <i class="fas fa-copy"></i>
+                </span>
+                <span class="button remove">
+                  <i class="fas fa-trash-alt"></i>
+                </span>
+              </span>
+            </span>
+          `).prepend(card_element);
+        }));
 
       $('#layouts .edit').on('click', function() {
         get_layout_from_button(this).then(function(layout) {
           if (layout.type == 'default') {
             alert('You cannot edit default layouts! Try duplicating it first.');
           } else {
-            console.log('TODO: Edit DB layout');
-            // db_get(TABLE_LAYOUTS, layout_id).then(function(layout) {
-            //   edit_layout(layout);
-            // });
+            edit_layout(layout);
           }
         })
       });
@@ -418,7 +421,7 @@ $(document).ready(function() {
           let new_layout = {
             'name': `Copy of ${layout.name}`,
             'type': 'database',
-            'layout': layout.layout,
+            'positions': layout.positions,
           };
 
           db_put(TABLE_LAYOUTS, new_layout).then(function() {
@@ -458,6 +461,47 @@ $(document).ready(function() {
       });
     });
   }
+
+  function edit_layout(layout) {
+    EDIT_LAYOUT = layout;
+    show_edit_layout();
+    // $('#edit_layout_overlay #zoom').val(layout.zoom);
+    // $('#edit_layout_overlay .background_color').val(layout.background_color);
+    $('#edit_layout_overlay').show();
+  }
+
+  function show_edit_layout() {
+    $('#edit_layout_overlay .edit_layout')
+      .empty()
+      .append(render_layout(EDIT_LAYOUT.positions));
+
+
+    $('#edit_layout_overlay .settings_container .zoom_container')
+      .empty()
+      .append(
+        EDIT_LAYOUT.positions.map(function(position, index) {
+          return `
+            <span class="layout_zoom" data-index=${index}>
+              ${index+1}:
+              <input type="range" min="0.1" max="5" step="0.01" class="zoom_input" value="${position[2]}"/>
+              <span class="zoom_caption">${position[2]}</span>x
+            </span>
+          `;
+        }));
+
+    // $('#zoom_caption').text(EDIT_LAYOUT.zoom);
+
+
+    // $('#edit_layout_overlay .edit_layout .layout').on('mousemove', function(event) {
+    //   if (event.buttons != 1) return;
+
+    //   let pc_mult = 100.0 / EDIT_LAYOUT.width / EDIT_LAYOUT.zoom;
+    //   EDIT_LAYOUT.x += event.originalEvent.movementX * pc_mult;
+    //   EDIT_LAYOUT.y += event.originalEvent.movementY * pc_mult;
+    //   $('#edit_layout_overlay .edit_layout .zoom').css(get_layout_css(EDIT_LAYOUT));
+    // });
+  }
+
 
   /////////////////////////////
   // Init functions
@@ -533,7 +577,7 @@ $(document).ready(function() {
       $('#edit_image_overlay').hide();
     });
 
-    $('#edit_image_overlay #zoom').on('change, input', function() {
+    $('#edit_image_overlay .zoom_input').on('change, input', function() {
       EDIT_IMAGE.zoom = $(this).val();
       show_edit_image();
     });

@@ -13,7 +13,7 @@
       <span class="title">DGen</span>
 
       <button id="edit_images">Edit Images</button>
-      <button id="edit_layouts">Edit Layouts</button>
+      <!-- <button id="edit_layouts">Edit Layouts</button> -->
       <button id="edit_settings">Edit Settings</button>
 
       <label for="card_order">Layout:</label>
@@ -47,18 +47,21 @@
     </div>
 
     <div id="edit_image_overlay" class="overlay">
-      <span class="edit_image">
-      </span>
       <span class="settings_container">
-        Image Zoom: <span id="zoom_caption"></span>x
+        Image Zoom: <span class="zoom_caption"></span>x
         <br/>
-        <input type="range" min="0.1" max="5" step="0.01" id="zoom">
+        <input type="range" min="0.1" max="5" step="0.01" class="zoom_input">
+        <br/>
         <br/>
         Background colour: <input type="color" class="background_color">
         <br/>
+        <br/>
         <button class="apply">Save Changes</button>
+        <br/>
+        <br/>
         <button class="cancel">Cancel Changes</button>
       </span>
+      <span class="edit_image"></span>
     </div>
 
 
@@ -71,12 +74,17 @@
     </div>
 
     <div id="edit_layout_overlay" class="overlay">
-      <span class="edit_layout">
-      </span>
       <span class="settings_container">
+        Zoom:<br/>
+        <span class="zoom_container"></span>
+        <br/>
+        <br/>
         <button class="apply">Save Changes</button>
+        <br/>
+        <br/>
         <button class="cancel">Cancel Changes</button>
       </span>
+      <span class="edit_layout"></span>
     </div>
 
 
