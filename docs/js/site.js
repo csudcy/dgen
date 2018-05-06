@@ -210,7 +210,7 @@ $(document).ready(function() {
               return `
                 <span class="image_container" data-id="${image.id}">
                   ${image_html}
-                  <span class="button remove">
+                  <span class="buttons button remove">
                     <i class="fas fa-trash-alt"></i>
                   </span>
                 </span>
@@ -366,14 +366,16 @@ $(document).ready(function() {
 
           return $(`
             <span class="card_container" data-type="default" data-key="${key}">
-              <span class="button edit">
-                <i class="fas fa-pencil-alt"></i>
-              </span>
-              <span class="button duplicate">
-                <i class="fas fa-copy"></i>
-              </span>
-              <span class="button remove">
-                <i class="fas fa-trash-alt"></i>
+              <span class="buttons">
+                <span class="button edit">
+                  <i class="fas fa-pencil-alt"></i>
+                </span>
+                <span class="button duplicate">
+                  <i class="fas fa-copy"></i>
+                </span>
+                <span class="button remove">
+                  <i class="fas fa-trash-alt"></i>
+                </span>
               </span>
             </span>
           `).prepend(card_element);

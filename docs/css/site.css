@@ -1,28 +1,30 @@
 /************************\
-* Components
+* Buttons
 \************************/
 
-.overlay {
-  display: none;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.8);
-}
-
-.overlay h1 {
-  text-align: center;
-  color: white;
-}
-
-.button, .big_button {
+.buttons {
   position: absolute;
   top: 5px;
   right: 5px;
-  color: lightseagreen;
+}
+
+.button, .big_button {
+  color: white;
   cursor: pointer;
+
+  text-shadow:
+    -1px -1px 1px black,
+     0px -1px 1px black,
+     1px -1px 1px black,
+     1px  0px 1px black,
+     1px  1px 1px black,
+     0px  1px 1px black,
+    -1px  1px 1px black,
+    -1px  0px 1px black;
+}
+
+.button:hover, .big_button:hover {
+  color: lightseagreen;
 }
 
 .button {
@@ -134,53 +136,22 @@
 
 
 /************************\
-* Drag Overlay
+* Overlays
 \************************/
 
-#drag_overlay {
-  color: white;
-  text-align: center;
-  font-size: 40px;
-  padding-top: 40%;
-}
-
-
-/************************\
-* Layout Overlay
-\************************/
-
-#layouts {
-  overflow: scroll;
+.overlay {
+  display: none;
   position: absolute;
-  bottom: 0px;
-  top: 65px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
-#layouts .card_container {
-  width: 200px;
-  height: 200px;
-  padding: 5px;
-  position: relative;
-  display: inline-block;
-}
-
-#layouts .card_container .card {
-  width: 100%;
-  height: 100%;
-  background-color: white;
-  border: 1px solid black;
-  cursor: pointer;
-}
-
-#layouts .card_container .edit {
-  right: 55px;
-}
-
-#layouts .card_container .duplicate {
-  right: 30px;
-}
-
-#layouts .card_container .remove {
+.overlay h1 {
+  text-align: center;
+  color: white;
 }
 
 
@@ -208,17 +179,13 @@
   cursor: pointer;
 }
 
-#images .image_container .remove {
-  top: 5px;
-}
-
 
 /************************\
 * Edit Image Overlay
 \************************/
 
-#edit_image_overlay .remove {
-  top: 5px;
+#edit_image_overlay {
+  color: white;
 }
 
 #edit_image_overlay .edit_image {
@@ -249,6 +216,34 @@
 
 
 /************************\
+* Layout Overlay
+\************************/
+
+#layouts {
+  overflow: scroll;
+  position: absolute;
+  bottom: 0px;
+  top: 65px;
+}
+
+#layouts .card_container {
+  width: 200px;
+  height: 200px;
+  padding: 5px;
+  position: relative;
+  display: inline-block;
+}
+
+#layouts .card_container .card {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  border: 1px solid black;
+  cursor: pointer;
+}
+
+
+/************************\
 * Settings Overlay
 \************************/
 
@@ -267,6 +262,18 @@
   width: 60px;
   margin-right: 10px;
   font-size: 18px;
+}
+
+
+/************************\
+* Drag Overlay
+\************************/
+
+#drag_overlay {
+  color: white;
+  text-align: center;
+  font-size: 40px;
+  padding-top: 40%;
 }
 
 
