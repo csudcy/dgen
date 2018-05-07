@@ -152,24 +152,29 @@ $(document).ready(function() {
 
 
   /////////////////////////////
-  // Card Rendering
+  // Card/Layout Rendering
   /////////////////////////////
+
+  function get_position_css(position) {
+    return {
+      'top': `${position.y - position.zoom*50}%`,
+      'left': `${position.x - position.zoom*50}%`,
+      'width': `${position.zoom*100}%`,
+      'height': `${position.zoom*100}%`,
+    };
+  }
 
   function render_card(positions, rendered_images, combination, maximum_rotation) {
     let card = $('<span class="card"></span>');
 
     $.each(combination, function(index, image_index) {
-      let position = positions[index];
       let rotation = Math.floor(Math.random() * maximum_rotation);
       card.append(
         $(rendered_images[image_index])
+          .css(get_position_css(positions[index]))
           .css({
-            'top': `${position.y - position.zoom*50}%`,
-            'left': `${position.x - position.zoom*50}%`,
-            'width': `${position.zoom*100}%`,
-            'height': `${position.zoom*100}%`,
-            'position': 'absolute',
-            'transform': `rotate(${rotation}deg)`,
+            position: 'absolute',
+            transform: `rotate(${rotation}deg)`,
           }));
     });
 
@@ -543,8 +548,7 @@ $(document).ready(function() {
       let pc_mult = position.zoom / 2; //100.0 / EDIT_LAYOUT.width / EDIT_LAYOUT.zoom;
       position.x += event.originalEvent.movementX * pc_mult;
       position.y += event.originalEvent.movementY * pc_mult;
-      // $(this).css(get_layout_css(EDIT_LAYOUT));
-      update_edit_layout();
+      $(this).css(get_position_css(position));
     });
   }
 
@@ -643,6 +647,9 @@ $(document).ready(function() {
 
   function init_edit_layout_ui() {
     $('#edit_layout_overlay .apply').on('click', function() {
+      // Save the name
+      EDIT_LAYOUT.name = $('#edit_layout_overlay .name').val();
+
       db_put(TABLE_LAYOUTS, EDIT_LAYOUT).then(function() {
         EDIT_LAYOUT = null;
         $('#edit_layout_overlay').hide();
