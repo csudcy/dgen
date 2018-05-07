@@ -164,8 +164,8 @@ $(document).ready(function() {
       card.append(
         $(rendered_images[image_index])
           .css({
-            'top': `${position.y}%`,
-            'left': `${position.x}%`,
+            'top': `${position.y - position.zoom*50}%`,
+            'left': `${position.x - position.zoom*50}%`,
             'width': `${position.zoom*100}%`,
             'height': `${position.zoom*100}%`,
             'position': 'absolute',
@@ -381,8 +381,8 @@ $(document).ready(function() {
             'name': `Default ${key}`,
             'positions': $.map(settings.layout, function(position, index) {
               return {
-                'x': position[0],
-                'y': position[1],
+                'x': position[0] + position[2],
+                'y': position[1] + position[2],
                 'zoom': Math.floor(position[2] * 2) / 100,
               };
             }),
