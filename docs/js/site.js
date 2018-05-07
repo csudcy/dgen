@@ -1,6 +1,5 @@
 /*
 TODO:
-  Print button
   Layout editor
   Pinch zoom
   Export/import
@@ -529,11 +528,9 @@ $(document).ready(function() {
       $(this).parent().hide();
     });
 
-
     $('#add_images').on('click', function(event) {
       $('#image_input').trigger('click');
     });
-
     $('#image_input').on('change', function(event) {
       add_images(event.target.files);
     });
@@ -550,9 +547,13 @@ $(document).ready(function() {
     $('#edit_settings').on('click', function() {
       $('#settings_overlay').show();
     });
+
+    $('#show_print').on('click', function() {
+      $('#print_overlay').show();
+    });
   }
 
-  function init_image_ui() {
+  function init_drag_ui() {
     // Add drag/drop handling
     $('html').on('dragover', function(event) {
       event.preventDefault();
@@ -626,6 +627,12 @@ $(document).ready(function() {
     });
   }
 
+  function init_print_ui() {
+    $('#print').on('click', function() {
+      window.print()
+    });
+  }
+
   /////////////////////////////
   // Init everything
   /////////////////////////////
@@ -637,8 +644,9 @@ $(document).ready(function() {
 
   // UI
   init_general_ui();
-  init_image_ui();
+  init_drag_ui();
   init_generate_ui();
   init_edit_image_ui();
   init_edit_layout_ui();
+  init_print_ui();
 });

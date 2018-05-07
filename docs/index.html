@@ -20,6 +20,8 @@
         <!-- <button id="edit_layouts">Edit Layouts</button> -->
         <button id="edit_settings">Edit Settings</button>
 
+        <button id="show_print">Save To PDF</button>
+
         <label for="card_order">Layout:</label>
         <select id="card_order"></select>
       </div>
@@ -116,6 +118,36 @@
 
         <input type="color" id="card_background_color">
         <label for="card_background_color">Background Colour</label>
+      </span>
+    </div>
+
+
+    <div id="print_overlay" class="overlay">
+      <span class="buttons big_button close_overlay">
+        <i class="far fa-times-circle"></i>
+      </span>
+      <h1>Saving to PDF</h1>
+      <span class="print_instructions">
+        To save the cards as a PDF (so you can e.g. email them to someone), you can:
+        <ol>
+          <li>Make sure you are using the <b>Chrome</b> browser<sup>*</sup>!</li>
+          <li>Click the print button below</li>
+          <li>The print dialog should popup</li>
+          <li>
+            Check the "Destination" on the left says "Save as PDF"
+            <ul><li>If not, click "Change" and select "ave as PDF"</li></ul>
+          </li>
+          <li>Click "Save"</li>
+          <li>Choose where you want to save your PDF & what to call it</li>
+          <li>Click "Save" again</li>
+          <li>You should now have a PDF saved - enjoy playing your new game!</li>
+        </ol>
+
+        <button id="print">Print</button>
+
+        <span class="notes">
+          <sup>*</sup>This may work in other browsers but I haven't tested them - good luck!
+        </span>
       </span>
     </div>
 

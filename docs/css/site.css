@@ -110,7 +110,7 @@
 }
 
 #top button {
-  font-size: 24px;
+  font-size: 20px;
   margin-right: 10px;
 }
 
@@ -332,15 +332,44 @@
 * Printing
 \************************/
 
+
+#print_overlay {
+  text-align: center;
+}
+
+#print_overlay .print_instructions {
+  text-align: left;
+  background-color: white;
+  font-size: 18px;
+  border-radius: 20px;
+  display: inline-block;
+  padding: 10px;
+}
+
+#print_overlay .print_instructions sup {
+  font-size: small;
+}
+
+#print_overlay .print_instructions button {
+  font-size: 30px;
+  display: block;
+  margin: 10px auto;
+}
+
+#print_overlay .print_instructions .notes {
+  font-size: 12px;
+}
+
 @media print {
-  #top {
+  #box_container {
+    position: unset;
+  }
+
+  #top, .overlay {
     display: none !important;
   }
 
-  #cards {
+  #main {
     border: none;
-    height: 100%;
-    width: 100%;
-    position: unset;
   }
 }
