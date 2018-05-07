@@ -16,6 +16,9 @@ $(document).ready(function() {
   const TABLE_LAYOUTS = 'layouts';
   let DB = null;
 
+  const LAYOUT_DEFAULT = 'default';
+  const LAYOUT_DATABASE = 'database';
+
   // Settings
   let CARD_SETTINGS = null;
 
@@ -152,19 +155,19 @@ $(document).ready(function() {
   // Card Rendering
   /////////////////////////////
 
-  function render_card(layout, rendered_images, combination, maximum_rotation) {
+  function render_card(positions, rendered_images, combination, maximum_rotation) {
     let card = $('<span class="card"></span>');
 
     $.each(combination, function(index, image_index) {
-      let position = layout[index];
+      let position = positions[index];
       let rotation = Math.floor(Math.random() * maximum_rotation);
       card.append(
         $(rendered_images[image_index])
           .css({
-            'top': `${position[1]}%`,
-            'left': `${position[0]}%`,
-            'width': `${position[2]*2}%`,
-            'height': `${position[2]*2}%`,
+            'top': `${position.y}%`,
+            'left': `${position.x}%`,
+            'width': `${position.zoom*100}%`,
+            'height': `${position.zoom*100}%`,
             'position': 'absolute',
             'transform': `rotate(${rotation}deg)`,
           }));
@@ -281,8 +284,14 @@ $(document).ready(function() {
   /////////////////////////////
 
   function generate() {
-    db_fetch(TABLE_IMAGES).then(function(images) {
-      let settings = SETTINGS[CARD_SETTINGS.order];
+    Promise.all([
+      db_fetch(TABLE_IMAGES),
+      get_layout(LAYOUT_DEFAULT, CARD_SETTINGS.order),
+    ]).then(function(results) {
+      let images = results[0];
+      let layout = results[1];
+
+      let settings = SETTINGS[layout.positions.length];
 
       // Shuffle the images so the cards are more randomised
       shuffle_array(images);
@@ -298,7 +307,7 @@ $(document).ready(function() {
         .empty()
         .append(
           $.map(settings.combinations, function(combination) {
-            return render_card(settings.layout, rendered_images, combination, 360).css({
+            return render_card(layout.positions, rendered_images, combination, 360).css({
               'height': `${2*CARD_SETTINGS.radius}px`,
               'width': `${2*CARD_SETTINGS.radius}px`,
               'border': `${CARD_SETTINGS.border_thickness}px solid ${CARD_SETTINGS.border_color}`,
@@ -325,7 +334,7 @@ $(document).ready(function() {
 
   function load_card_settings() {
     db_fetch(TABLE_CARD_SETTINGS).then(function(card_settings) {
-      if (card_settings[0]) {
+      if (card_settings) {
         // Use the settings from the DB
         CARD_SETTINGS = card_settings[0];
       } else {
@@ -367,12 +376,34 @@ $(document).ready(function() {
       db_fetch(TABLE_LAYOUTS).then(function(db_layouts) {
         resolve($.map(SETTINGS, function(settings, key) {
           return {
-            'type': 'default',
+            'type': LAYOUT_DEFAULT,
             'id': key,
             'name': `Default ${key}`,
-            'positions': settings.layout,
+            'positions': $.map(settings.layout, function(position, index) {
+              return {
+                'x': position[0],
+                'y': position[1],
+                'zoom': Math.floor(position[2] * 2) / 100,
+              };
+            }),
           };
         }).concat(db_layouts));
+      });
+    });
+  }
+
+  function get_layout(layout_type, layout_id) {
+    return new Promise(function(resolve, reject) {
+      get_layouts().then(function(layouts) {
+        let filtered_layouts = $.grep(layouts, function(layout) {
+          return (layout.type == layout_type) && (layout.id == layout_id);
+        });
+
+        if (!filtered_layouts) {
+          throw new Error(`Could not find layout "${layout_id}" of type "${layout_type}"!`);
+        }
+
+        resolve(filtered_layouts[0]);
       });
     });
   }
@@ -415,7 +446,7 @@ $(document).ready(function() {
 
       $('#layouts .edit').on('click', function() {
         get_layout_from_button(this).then(function(layout) {
-          if (layout.type == 'default') {
+          if (layout.type == LAYOUT_DEFAULT) {
             alert('You cannot edit default layouts! Try duplicating it first.');
           } else {
             edit_layout(layout);
@@ -428,7 +459,7 @@ $(document).ready(function() {
           // Create a new layout
           let new_layout = {
             'name': `Copy of ${layout.name}`,
-            'type': 'database',
+            'type': LAYOUT_DATABASE,
             'positions': layout.positions,
           };
 
@@ -441,7 +472,7 @@ $(document).ready(function() {
 
       $('#layouts .remove').on('click', function() {
         get_layout_from_button(this).then(function(layout) {
-          if (layout.type == 'default') {
+          if (layout.type == LAYOUT_DEFAULT) {
             alert('You cannot remove default layouts!');
           } else {
             db_remove(TABLE_LAYOUTS, layout.id).then(show_layouts);
@@ -452,22 +483,10 @@ $(document).ready(function() {
   }
 
   function get_layout_from_button(button) {
-    return new Promise(function(resolve, reject) {
-      get_layouts().then(function(layouts) {
-        let layout_element = $(button).parent().parent();
-        let layout_type = layout_element.data('type');
-        let layout_id = layout_element.data('id');
-        let filtered_layouts = $.grep(layouts, function(layout) {
-          return (layout.type == layout_type) && (layout.id == layout_id);
-        });
-
-        if (!filtered_layouts) {
-          throw new Error(`Could not find layout "${layout_id}" of type "${layout_type}"!`);
-        }
-
-        resolve(filtered_layouts[0]);
-      });
-    });
+    let layout_element = $(button).parent().parent();
+    let layout_type = layout_element.data('type');
+    let layout_id = layout_element.data('id');
+    return get_layout(layout_type, layout_id);
   }
 
   function edit_layout(layout) {
@@ -487,7 +506,7 @@ $(document).ready(function() {
           return `
             <span class="layout_zoom" data-index=${index}>
               ${index+1}:
-              <input type="range" min="0.01" max="1" step="0.01" class="zoom_input" value="${position[2]/100}"/>
+              <input type="range" min="0.01" max="1" step="0.01" class="zoom_input" value="${position.zoom}"/>
               <span class="zoom_caption">?</span>x
             </span>
           `;
@@ -496,7 +515,7 @@ $(document).ready(function() {
     $('#edit_layout_overlay .zoom_input').on('change, input', function() {
       let index = $(this).parent().data('index');
 
-      EDIT_LAYOUT.positions[index][2] = parseFloat($(this).val()) * 100;
+      EDIT_LAYOUT.positions[index].zoom = parseFloat($(this).val());
       update_edit_layout();
     });
 
@@ -510,7 +529,7 @@ $(document).ready(function() {
       .append(render_layout(EDIT_LAYOUT.positions));
 
     $.each(EDIT_LAYOUT.positions, function(index, position) {
-      $(`.layout_zoom[data-index=${index}] .zoom_caption`).text(Math.floor(position[2])/100);
+      $(`.layout_zoom[data-index=${index}] .zoom_caption`).text(position.zoom);
     });
 
     $('#edit_layout_overlay .name').val(EDIT_LAYOUT.name);

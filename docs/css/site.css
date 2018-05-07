@@ -231,6 +231,12 @@
   width: 200px;
 }
 
+.zoom_caption {
+  width: 52px;
+  display: inline-block;
+  text-align: left;
+}
+
 
 /************************\
 * Layout Overlay
