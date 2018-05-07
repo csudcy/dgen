@@ -85,12 +85,20 @@
 * Main Page
 \************************/
 
-#top {
+#box_container {
+  display: flex;
+  flex-flow: column;
+
   position: absolute;
   top: 0px;
-  height: 60px;
+  bottom: 0px;
   left: 0px;
   right: 0px;
+
+}
+
+#top {
+  flex: 0 1 auto;
   border: 1px solid black;
 }
 
@@ -129,11 +137,7 @@
 }
 
 #main {
-  position: absolute;
-  top: 60px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
+  flex: 1 1 auto;
   border: 1px solid black;
   overflow: scroll;
 }
