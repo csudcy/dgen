@@ -534,15 +534,17 @@ $(document).ready(function() {
 
     $('#edit_layout_overlay .name').val(EDIT_LAYOUT.name);
 
-    $('#edit_layout_overlay .edit_layout .card').on('mousemove', function(event) {
+    $('#edit_layout_overlay .edit_layout .card .image').on('mousemove', function(event) {
       if (event.buttons != 1) return;
 
-      console.log('TODO: Set layout position');
+      let index = $(this).data('index');
+      let position = EDIT_LAYOUT.positions[index];
 
-      // let pc_mult = 100.0 / EDIT_LAYOUT.width / EDIT_LAYOUT.zoom;
-      // EDIT_LAYOUT.x += event.originalEvent.movementX * pc_mult;
-      // EDIT_LAYOUT.y += event.originalEvent.movementY * pc_mult;
-      // $('#edit_layout_overlay .edit_layout .zoom').css(get_layout_css(EDIT_LAYOUT));
+      let pc_mult = position.zoom / 2; //100.0 / EDIT_LAYOUT.width / EDIT_LAYOUT.zoom;
+      position.x += event.originalEvent.movementX * pc_mult;
+      position.y += event.originalEvent.movementY * pc_mult;
+      // $(this).css(get_layout_css(EDIT_LAYOUT));
+      update_edit_layout();
     });
   }
 
