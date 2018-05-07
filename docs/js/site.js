@@ -1,10 +1,8 @@
 /*
 TODO:
-  Layout editor
-  Pinch zoom
+  Show layout names in editor
   Export/import
-  Image edit reset
-  Images sets?
+  Images sets
 */
 
 $(document).ready(function() {
@@ -16,11 +14,9 @@ $(document).ready(function() {
   const TABLE_LAYOUTS = 'layouts';
   let DB = null;
 
+  // Layout types
   const LAYOUT_DEFAULT = 'default';
   const LAYOUT_DATABASE = 'database';
-
-  // Settings
-  let CARD_SETTINGS = null;
 
   // Image being edited
   let EDIT_IMAGE = null;
@@ -289,36 +285,38 @@ $(document).ready(function() {
   /////////////////////////////
 
   function generate() {
-    Promise.all([
-      db_fetch(TABLE_IMAGES),
-      get_layout(LAYOUT_DEFAULT, CARD_SETTINGS.order),
-    ]).then(function(results) {
-      let images = results[0];
-      let layout = results[1];
+    get_card_settings().then(function(card_settings) {
+      Promise.all([
+        db_fetch(TABLE_IMAGES),
+        get_layout(card_settings.layout_key),
+      ]).then(function(results) {
+        let images = results[0];
+        let layout = results[1];
 
-      let settings = SETTINGS[layout.positions.length];
+        let settings = SETTINGS[layout.positions.length];
 
-      // Shuffle the images so the cards are more randomised
-      shuffle_array(images);
+        // Shuffle the images so the cards are more randomised
+        shuffle_array(images);
 
-      // Generate all the images/placeholders
-      let rendered_images = $.map(images, render_image);
-      while (rendered_images.length < settings.items_required) {
-        rendered_images.push(render_placeholder(rendered_images.length))
-      }
+        // Generate all the images/placeholders
+        let rendered_images = $.map(images, render_image);
+        while (rendered_images.length < settings.items_required) {
+          rendered_images.push(render_placeholder(rendered_images.length))
+        }
 
-      // Generate all the cards
-      $('#cards')
-        .empty()
-        .append(
-          $.map(settings.combinations, function(combination) {
-            return render_card(layout.positions, rendered_images, combination, 360).css({
-              'height': `${2*CARD_SETTINGS.radius}px`,
-              'width': `${2*CARD_SETTINGS.radius}px`,
-              'border': `${CARD_SETTINGS.border_thickness}px solid ${CARD_SETTINGS.border_color}`,
-              'background-color': `${CARD_SETTINGS.background_color}`,
-            });
-          }));
+        // Generate all the cards
+        $('#cards')
+          .empty()
+          .append(
+            $.map(settings.combinations, function(combination) {
+              return render_card(layout.positions, rendered_images, combination, 360).css({
+                'height': `${2*card_settings.radius}px`,
+                'width': `${2*card_settings.radius}px`,
+                'border': `${card_settings.border_thickness}px solid ${card_settings.border_color}`,
+                'background-color': `${card_settings.background_color}`,
+              });
+            }));
+      });
     });
   }
 
@@ -337,38 +335,59 @@ $(document).ready(function() {
   // Card settings
   /////////////////////////////
 
-  function load_card_settings() {
-    db_fetch(TABLE_CARD_SETTINGS).then(function(card_settings) {
-      if (card_settings) {
-        // Use the settings from the DB
-        CARD_SETTINGS = card_settings[0];
-      } else {
-        // Make default settings
-        CARD_SETTINGS = {
-          background_color: '#ffffff',
-          border_color: '#00ff00',
-          border_thickness: 6,
-          order: 3,
-          radius: 150,
-        };
-      }
+  function get_card_settings() {
+    return new Promise(function(resolve, reject) {
+      db_fetch(TABLE_CARD_SETTINGS).then(function(card_objects) {
+        // Get the card settings
+        let card_settings;
+        if (card_objects.length) {
+          // Use the settings from the DB
+          card_settings = card_objects[0];
+        } else {
+          // Make default settings
+          card_settings = {
+            background_color: '#ffffff',
+            border_color: '#00ff00',
+            border_thickness: 6,
+            layout_key: `${LAYOUT_DEFAULT}__3`,
+            radius: 150,
+          };
+        }
 
-      $('#card_background_color').val(CARD_SETTINGS.background_color);
-      $('#card_border_color').val(CARD_SETTINGS.border_color);
-      $('#card_border_thickness').val(CARD_SETTINGS.border_thickness);
-      $('#card_order').val(CARD_SETTINGS.order);
-      $('#card_radius').val(CARD_SETTINGS.radius);
+        // Check the layout still exists
+        get_layout(card_settings.layout_key).then(function(layout) {
+          if (!layout) {
+            card_settings.layout_key = `${LAYOUT_DEFAULT}__3`;
+          }
+
+
+          resolve(card_settings);
+        });
+      });
     });
   }
 
+  function load_card_settings() {
+    get_card_settings().then(function(card_settings) {
+      $('#card_background_color').val(card_settings.background_color);
+      $('#card_border_color').val(card_settings.border_color);
+      $('#card_border_thickness').val(card_settings.border_thickness);
+      $('#layout_input').val(card_settings.layout_key);
+      $('#card_radius').val(card_settings.radius);
+    })
+  }
+
   function save_card_settings() {
-    CARD_SETTINGS.background_color = $('#card_background_color').val();
-    CARD_SETTINGS.border_color = $('#card_border_color').val();
-    CARD_SETTINGS.border_thickness = $('#card_border_thickness').val();
-    CARD_SETTINGS.order = $('#card_order').val();
-    CARD_SETTINGS.radius = $('#card_radius').val();
-    db_put(TABLE_CARD_SETTINGS, CARD_SETTINGS);
-    generate();
+    get_card_settings().then(function(card_settings) {
+      card_settings.background_color = $('#card_background_color').val();
+      card_settings.border_color = $('#card_border_color').val();
+      card_settings.border_thickness = $('#card_border_thickness').val();
+      card_settings.layout_key = $('#layout_input').val();
+      card_settings.radius = $('#card_radius').val();
+
+      db_put(TABLE_CARD_SETTINGS, card_settings);
+      generate();
+    });
   }
 
 
@@ -397,18 +416,12 @@ $(document).ready(function() {
     });
   }
 
-  function get_layout(layout_type, layout_id) {
+  function get_layout(layout_key) {
     return new Promise(function(resolve, reject) {
       get_layouts().then(function(layouts) {
-        let filtered_layouts = $.grep(layouts, function(layout) {
-          return (layout.type == layout_type) && (layout.id == layout_id);
-        });
-
-        if (!filtered_layouts) {
-          throw new Error(`Could not find layout "${layout_id}" of type "${layout_type}"!`);
-        }
-
-        resolve(filtered_layouts[0]);
+        resolve($.grep(layouts, function(layout) {
+          return `${layout.type}__${layout.id}` == layout_key;
+        })[0]);
       });
     });
   }
@@ -428,12 +441,35 @@ $(document).ready(function() {
 
   function show_layouts() {
     get_layouts().then(function(layouts) {
+      // Save the currently selected layout
+      let layout_input = $('#layout_input');
+      let selected_layout = layout_input.val();
+
+      // Populate the list of layouts
+      layout_input
+        .empty()
+        .append(
+          $.map(layouts, function(layout) {
+            return `
+              <option value="${layout.type}__${layout.id}">${layout.name}</option>`;
+          }));
+
+      // Use the previously selected layout
+      layout_input.val(selected_layout);
+
+      // Check the selected layout still exists
+      if (layout_input.val() != selected_layout) {
+        // Choose the right layout
+        load_card_settings();
+        generate();
+      }
+
       $('#layouts')
         .empty()
         .append($.map(layouts, function(layout) {
           let card_element = render_layout(layout.positions);
           return $(`
-            <span class="card_container" data-type="${layout.type}" data-id="${layout.id}">
+            <span class="card_container" data-key="${layout.type}__${layout.id}">
               <span class="buttons">
                 <span class="button edit">
                   <i class="fas fa-pencil-alt"></i>
@@ -470,7 +506,6 @@ $(document).ready(function() {
 
           db_put(TABLE_LAYOUTS, new_layout).then(function() {
             show_layouts();
-            alert(`Duplicated to "${new_layout.name}"!`);
           });
         });
       });
@@ -480,7 +515,9 @@ $(document).ready(function() {
           if (layout.type == LAYOUT_DEFAULT) {
             alert('You cannot remove default layouts!');
           } else {
-            db_remove(TABLE_LAYOUTS, layout.id).then(show_layouts);
+            db_remove(TABLE_LAYOUTS, layout.id).then(function() {
+              show_layouts();
+            });
           }
         });
       });
@@ -488,17 +525,13 @@ $(document).ready(function() {
   }
 
   function get_layout_from_button(button) {
-    let layout_element = $(button).parent().parent();
-    let layout_type = layout_element.data('type');
-    let layout_id = layout_element.data('id');
-    return get_layout(layout_type, layout_id);
+    let layout_key = $(button).parent().parent().data('key');
+    return get_layout(layout_key);
   }
 
   function edit_layout(layout) {
     EDIT_LAYOUT = layout;
     show_edit_layout();
-    // $('#edit_layout_overlay #zoom').val(layout.zoom);
-    // $('#edit_layout_overlay .background_color').val(layout.background_color);
     $('#edit_layout_overlay').show();
   }
 
@@ -574,7 +607,6 @@ $(document).ready(function() {
 
     $('#edit_layouts').on('click', function() {
       $('#layouts_overlay').show();
-      show_layouts();
     });
 
     $('#edit_settings').on('click', function() {
@@ -610,14 +642,7 @@ $(document).ready(function() {
   }
 
   function init_generate_ui() {
-    let counts = Object.keys(SETTINGS);
-    counts.sort();
-    $('#card_order').append(
-      $.map(counts, function(count) {
-        return `<option>${count}</option>`;
-      }));
-
-    $('#settings_overlay input, #card_order').on('change, input', save_card_settings);
+    $('#settings_overlay input, #layout_input').on('change, input', save_card_settings);
   }
 
   function init_edit_image_ui() {
@@ -654,6 +679,7 @@ $(document).ready(function() {
         EDIT_LAYOUT = null;
         $('#edit_layout_overlay').hide();
         show_layouts();
+        generate();
       });
     });
 
@@ -677,6 +703,7 @@ $(document).ready(function() {
   init_database();
   load_card_settings();
   show_images();
+  show_layouts();
 
   // UI
   init_general_ui();
