@@ -1,6 +1,6 @@
 /*
 TODO:
-  Show layout names in editor
+  Improve layout editor dragging
   Export/import
   Images sets
 */
@@ -481,6 +481,7 @@ $(document).ready(function() {
                   <i class="fas fa-trash-alt"></i>
                 </span>
               </span>
+              <span class="name">${layout.name}</span>
             </span>
           `).prepend(card_element);
         }));
