@@ -479,32 +479,41 @@ $(document).ready(function() {
   }
 
   function show_edit_layout() {
-    $('#edit_layout_overlay .edit_layout')
-      .empty()
-      .append(render_layout(EDIT_LAYOUT.positions));
-
-
+    // Show & bind all the zoom controls
     $('#edit_layout_overlay .settings_container .zoom_container')
       .empty()
       .append(
-        EDIT_LAYOUT.positions.map(function(position, index) {
+        $.map(EDIT_LAYOUT.positions, function(position, index) {
           return `
             <span class="layout_zoom" data-index=${index}>
               ${index+1}:
               <input type="range" min="0.01" max="1" step="0.01" class="zoom_input" value="${position[2]/100}"/>
-              <span class="zoom_caption">${Math.floor(position[2])/100}</span>x
+              <span class="zoom_caption">?</span>x
             </span>
           `;
         }));
 
     $('#edit_layout_overlay .zoom_input').on('change, input', function() {
-      console.log('TODO: Set layout zoom');
-      // EDIT_LAYOUT.zoom = $(this).val();
-      // show_edit_layout();
+      let index = $(this).parent().data('index');
+
+      EDIT_LAYOUT.positions[index][2] = parseFloat($(this).val()) * 100;
+      update_edit_layout();
+    });
+
+
+    update_edit_layout();
+  }
+
+  function update_edit_layout() {
+    $('#edit_layout_overlay .edit_layout')
+      .empty()
+      .append(render_layout(EDIT_LAYOUT.positions));
+
+    $.each(EDIT_LAYOUT.positions, function(index, position) {
+      $(`.layout_zoom[data-index=${index}] .zoom_caption`).text(Math.floor(position[2])/100);
     });
 
     $('#edit_layout_overlay .name').val(EDIT_LAYOUT.name);
-
 
     $('#edit_layout_overlay .edit_layout .card').on('mousemove', function(event) {
       if (event.buttons != 1) return;
@@ -517,7 +526,6 @@ $(document).ready(function() {
       // $('#edit_layout_overlay .edit_layout .zoom').css(get_layout_css(EDIT_LAYOUT));
     });
   }
-
 
   /////////////////////////////
   // Init functions
