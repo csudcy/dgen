@@ -115,6 +115,10 @@
   width: 150px;
 }
 
+#image_input {
+  display: none;
+}
+
 #no_images {
   display: none;
   padding: 25px;

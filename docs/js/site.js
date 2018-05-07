@@ -1,5 +1,6 @@
 /*
 TODO:
+  Print button
   Layout editor
   Pinch zoom
   Export/import
@@ -177,6 +178,14 @@ $(document).ready(function() {
   /////////////////////////////
   // Image Management
   /////////////////////////////
+
+  function add_images(filelist) {
+    if (!filelist.length) return;
+
+    Promise.all(
+      $.map(filelist, add_image)
+    ).then(show_images);
+  }
 
   function add_image(file) {
     return new Promise(function(resolve, reject) {
@@ -521,6 +530,14 @@ $(document).ready(function() {
     });
 
 
+    $('#add_images').on('click', function(event) {
+      $('#image_input').trigger('click');
+    });
+
+    $('#image_input').on('change', function(event) {
+      add_images(event.target.files);
+    });
+
     $('#edit_images').on('click', function() {
       $('#images_overlay').show();
     });
@@ -554,9 +571,7 @@ $(document).ready(function() {
       event.stopPropagation();
       $('#drag_overlay').hide();
 
-      Promise.all(
-        $.map(event.originalEvent.dataTransfer.files, add_image)
-      ).then(show_images);
+      add_images(event.originalEvent.dataTransfer.files);
     });
   }
 
