@@ -47,6 +47,7 @@
   border-radius: 100%;
   overflow: hidden;
   position: relative;
+  -webkit-print-color-adjust: exact;
 }
 
 .zoom {
@@ -317,21 +318,21 @@
 }
 
 /************************\
-* Settings Overlay
+* Card Settings Overlay
 \************************/
 
-#settings_overlay {
+#card_settings_overlay {
   text-align: center;
 }
 
-#settings_overlay .settings {
+#card_settings_overlay .card_settings {
   display: inline-block;
   font-size: 30px;
   text-align: left;
   color: white;
 }
 
-#settings_overlay .settings input {
+#card_settings_overlay .card_settings input {
   width: 60px;
   margin-right: 10px;
   font-size: 18px;

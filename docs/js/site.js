@@ -1,5 +1,6 @@
 /*
 TODO:
+  BUG: Print in Windows doesn't work well
   Improve layout editor dragging
   Export/import
   Images sets
@@ -610,8 +611,8 @@ $(document).ready(function() {
       $('#layouts_overlay').show();
     });
 
-    $('#edit_settings').on('click', function() {
-      $('#settings_overlay').show();
+    $('#edit_card_settings').on('click', function() {
+      $('#card_settings_overlay').show();
     });
 
     $('#show_print').on('click', function() {
@@ -643,7 +644,7 @@ $(document).ready(function() {
   }
 
   function init_generate_ui() {
-    $('#settings_overlay input, #layout_input').on('change, input', save_card_settings);
+    $('#card_settings_overlay input, #layout_input').on('change, input', save_card_settings);
   }
 
   function init_edit_image_ui() {
