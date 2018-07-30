@@ -275,9 +275,8 @@ $(document).ready(function() {
     $('#edit_image_overlay .edit_image .image').on('mousemove', function(event) {
       if (event.buttons != 1) return;
 
-      let pc_mult = 100.0 / EDIT_IMAGE.width / EDIT_IMAGE.zoom;
-      EDIT_IMAGE.x += event.originalEvent.movementX * pc_mult;
-      EDIT_IMAGE.y += event.originalEvent.movementY * pc_mult;
+      EDIT_IMAGE.x += event.originalEvent.movementX * 2;
+      EDIT_IMAGE.y += event.originalEvent.movementY * 2;
       $('#edit_image_overlay .edit_image .zoom').css(get_image_css(EDIT_IMAGE));
     });
   }
