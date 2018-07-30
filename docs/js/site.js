@@ -298,6 +298,10 @@ $(document).ready(function() {
 
         let settings = SETTINGS[layout.positions.length];
 
+        // Show card counts
+        $('#image_count .added').text(images.length);
+        $('#image_count .required').text(settings.items_required);
+
         // Shuffle the images so the cards are more randomised
         shuffle_array(images);
 
