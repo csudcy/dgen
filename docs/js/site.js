@@ -164,6 +164,8 @@ $(document).ready(function() {
   function render_card(positions, rendered_images, combination, maximum_rotation) {
     let card = $('<span class="card"></span>');
 
+    shuffle_array(combination);
+
     $.each(combination, function(index, image_index) {
       let rotation = Math.floor(Math.random() * maximum_rotation);
       card.append(
