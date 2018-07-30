@@ -56,6 +56,7 @@
 
 .placeholder {
   border: 1px solid black;
+  color: black;
   background-color: white;
 }
 
@@ -157,11 +158,36 @@
   left: 0;
   right: 0;
   background-color: rgba(0, 0, 0, 0.8);
+  color: white;
 }
 
 .overlay h1 {
   text-align: center;
-  color: white;
+}
+
+.settings_container {
+  display: inline-block;
+  font-size: 30px;
+  float: left;
+  padding: 10px;
+  border: 1px solid white;
+  margin: 70px 10px;
+  border-radius: 20px;
+  text-align: center;
+}
+
+.settings_container button {
+  font-size: 30px;
+}
+
+.zoom_input {
+  width: 200px;
+}
+
+.zoom_caption {
+  width: 52px;
+  display: inline-block;
+  text-align: left;
 }
 
 
@@ -197,10 +223,6 @@
 * Edit Image Overlay
 \************************/
 
-#edit_image_overlay {
-  color: white;
-}
-
 #edit_image_overlay .edit_image {
   display: inline-block;
   height: 500px;
@@ -210,36 +232,6 @@
 
 #edit_image_overlay .edit_image .image .zoom {
   cursor: all-scroll;
-}
-
-
-/************************\
-* Edit Overlay Settings
-\************************/
-
-.settings_container {
-  display: inline-block;
-  font-size: 30px;
-  float: left;
-  padding: 10px;
-  border: 1px solid white;
-  margin: 70px 10px;
-  border-radius: 20px;
-  text-align: center;
-}
-
-.settings_container button {
-  font-size: 30px;
-}
-
-.zoom_input {
-  width: 200px;
-}
-
-.zoom_caption {
-  width: 52px;
-  display: inline-block;
-  text-align: left;
 }
 
 
@@ -268,7 +260,6 @@
 }
 
 #layouts .card_container .name {
-  color: white;
   max-width: 100%;
   overflow: hidden;
   display: inline-block;
@@ -286,10 +277,6 @@
 /************************\
 * Edit Layout Overlay
 \************************/
-
-#edit_layout_overlay {
-  color: white;
-}
 
 #edit_layout_overlay .edit_layout {
   display: inline-block;
@@ -317,6 +304,31 @@
   font-size: 20px;
 }
 
+
+/************************\
+* Import/Export Overlay
+\************************/
+
+#import_export_overlay {
+  text-align: center;
+}
+
+#import_export_overlay .settings_container {
+  float: none;
+  text-align: left;
+}
+
+#import_export_overlay .settings_container textarea {
+  display: block;
+  width: 100%;
+  height: 200px;
+}
+
+#import_export_overlay .settings_container button {
+  width: 100%;
+}
+
+
 /************************\
 * Card Settings Overlay
 \************************/
@@ -325,26 +337,20 @@
   text-align: center;
 }
 
-#card_settings_overlay .card_settings {
-  display: inline-block;
-  font-size: 30px;
+#card_settings_overlay .settings_container {
+  float: none;
   text-align: left;
-  color: white;
 }
 
-#card_settings_overlay .card_settings input {
+#card_settings_overlay .settings_container input {
   width: 60px;
-  margin-right: 10px;
-  font-size: 18px;
 }
-
 
 /************************\
 * Drag Overlay
 \************************/
 
 #drag_overlay {
-  color: white;
   text-align: center;
   font-size: 40px;
   padding-top: 40%;

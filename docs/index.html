@@ -25,6 +25,8 @@
         <button id="edit_layouts">Edit Layouts</button>
         <button id="edit_card_settings">Edit Cards</button>
 
+        <!-- <button id="import_export">Import/Export</button> -->
+
         <button id="show_print">Save To PDF</button>
 
       </div>
@@ -106,7 +108,7 @@
         <i class="far fa-times-circle"></i>
       </span>
       <h1>Cards Settings</h1>
-      <span class="card_settings">
+      <span class="settings_container">
         <input type="number" id="card_radius" min="100" max="1000" step="25">
         <label for="card_radius">Card Radius</label>
         <br/>
@@ -121,6 +123,25 @@
 
         <input type="color" id="card_background_color">
         <label for="card_background_color">Background Colour</label>
+      </span>
+    </div>
+
+
+    <div id="import_export_overlay" class="overlay">
+      <span class="buttons big_button close_overlay">
+        <i class="far fa-times-circle"></i>
+      </span>
+      <h1>Import / Export</h1>
+      <span class="settings_container">
+        <textarea id="import_export_text"></textarea>
+        <button id="import_button">Import</button>
+
+        <ol>
+          <li>Copy the text from the box above</li>
+          <li>Email it to yourself</li>
+          <li>Paste the text into the box above</li>
+          <li>Click the 'Import' button</li>
+        </ol>
       </span>
     </div>
 

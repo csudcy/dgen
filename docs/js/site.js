@@ -615,6 +615,10 @@ $(document).ready(function() {
       $('#card_settings_overlay').show();
     });
 
+    $('#import_export').on('click', function() {
+      $('#import_export_overlay').show();
+    });
+
     $('#show_print').on('click', function() {
       $('#print_overlay').show();
     });
