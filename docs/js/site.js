@@ -408,7 +408,7 @@ $(document).ready(function() {
           return {
             'type': LAYOUT_DEFAULT,
             'id': key,
-            'name': `Default ${key}`,
+            'name': `Default ${key} (${settings.combinations.length} cards)`,
             'positions': $.map(settings.layout, function(position, index) {
               return {
                 'x': position[0] + position[2],
