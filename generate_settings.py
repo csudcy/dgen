@@ -1,16 +1,18 @@
-from itertools import combinations
+import itertools
 import math
-import os
+import pathlib
 import pprint
 import time
 
-OUTPUT_FILE = os.path.join('.', 'docs', 'js', 'settings.js')
+CURRENT_DIRECTORY = pathlib.Path(__file__).parent
+OUTPUT_FILE = CURRENT_DIRECTORY / 'docs' /'js' /'settings.js'
 
 CARD_RADIUS = 50
 
 
-class Settings(object):
-  def __init__(self, items_per_card, centre_image, enclosing_circle_radius):
+class Settings:
+
+  def __init__(self, items_per_card: int, centre_image: bool, enclosing_circle_radius: float):
     self.items_per_card = items_per_card
     self.items_required = items_per_card * (items_per_card - 1) + 1
     self.centre_image = centre_image
@@ -27,28 +29,30 @@ SETTINGS = {
   8: Settings(8, True, 3.304),
 }
 
-def n_choose_k(n, k):
+
+def n_choose_k(n: int, k: int) -> int:
   n_fac = math.factorial(n)
   k_fac = math.factorial(k)
   n_minus_k_fac = math.factorial(n - k)
   return n_fac / (k_fac * n_minus_k_fac)
 
-# Adapted from https://codegolf.stackexchange.com/questions/101229/dobble-spotit-card-generator
-def make_combos(settings):
-  print 'Making combos for {} items_per_card...'.format(settings.items_per_card)
 
-  items = xrange(settings.items_required)
+# Adapted from https://codegolf.stackexchange.com/questions/101229/dobble-spotit-card-generator
+def make_combos(settings: Settings):
+  print(f'Making combos for {settings.items_per_card} items_per_card...')
+
+  items = range(settings.items_required)
   combination_count = n_choose_k(settings.items_required, settings.items_per_card)
 
   used_combos = []
   check_count = 0
   next_output = 0
-  for combo in combinations(items, settings.items_per_card):
+  for combo in itertools.combinations(items, settings.items_per_card):
     check_count += 1
     if time.time() > next_output:
       next_output = time.time() + 1
       pc_done = float(check_count) / float(combination_count) * 100.0
-      print 'Checked {:.2f}% ({} combinations)...'.format(pc_done, check_count)
+      print(f'Checked {pc_done:.2f}% ({check_count} combinations)...')
     potential_combo = set(combo)
     # Work out if this combination is a valid combination
     # Valid combinations share exactly 1 item with every other card
@@ -58,14 +62,14 @@ def make_combos(settings):
     )
     if valid:
       used_combos.append(potential_combo)
-      print 'Found {} valid combination(s)...'.format(len(used_combos))
+      print(f'Found {len(used_combos)} valid combination(s)...')
 
-  print 'Found {} valid combination(s) out of {} total!'.format(len(used_combos), check_count)
+  print(f'Found {len(used_combos)} valid combination(s) out of {check_count} total!')
 
   return used_combos
 
 
-def make_layout(settings):
+def make_layout(settings: Settings) -> list[tuple[float, float, float]]:
   positions = []
 
   # Add each images radially with layout
@@ -86,13 +90,13 @@ def make_layout(settings):
 
   # Place all the edge images
   slice_angle = (2 * math.pi) / float(image_count)
-  for index in xrange(image_count):
+  for index in range(image_count):
     place_image(index * slice_angle, CARD_RADIUS - image_radius)
 
   return positions
 
 
-def generate():
+def generate() -> None:
   settings = {
     info.items_per_card: {
       'items_per_card': info.items_per_card,
@@ -103,7 +107,7 @@ def generate():
       ],
       'layout': make_layout(info)
     }
-    for info in SETTINGS.itervalues()
+    for info in SETTINGS.values()
   }
 
   with open(OUTPUT_FILE, 'w') as f:
