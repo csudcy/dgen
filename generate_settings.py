@@ -31,7 +31,41 @@ SETTINGS = {
 }
 
 
-def n_choose_k(n: int, k: int) -> int:
+def _is_prime(number: int) -> bool:
+  for i in range(2, int(number**0.5) + 1):
+    if number % i == 0:
+      return False
+  return True
+
+
+def make_combos(settings: Settings) -> list[set[int]]:
+  print()
+  print(f'Making combos for {settings.items_per_card} items_per_card...')
+
+  # Optimal algorithm only works where (items_per_card - 1) is prime
+  if _is_prime(settings.items_per_card - 1):
+    combos = _make_combos_prime(settings)
+
+    # Only the prime algorithm guarantees an optimal arrangement
+    print('Checking count...')
+    if len(combos) != settings.items_required:
+      raise Exception(f'Expected {settings.items_required} combinations, got {len(combos)}!')
+  else:
+    combos = _make_combos(settings)
+
+  print('Validating matches...')
+  for i, card in enumerate(combos):
+    for j, other_card in enumerate(combos[i + 1:]):
+      common = len(set(card) & set(other_card))
+      if common != 1:
+        raise Exception(f'Error! Card {i} and {j} have {common} matches!')
+
+  print('Done!')
+
+  return combos
+
+
+def _n_choose_k(n: int, k: int) -> int:
   n_fac = math.factorial(n)
   k_fac = math.factorial(k)
   n_minus_k_fac = math.factorial(n - k)
@@ -39,12 +73,9 @@ def n_choose_k(n: int, k: int) -> int:
 
 
 # Adapted from https://codegolf.stackexchange.com/questions/101229/dobble-spotit-card-generator
-def make_combos(settings: Settings) -> list[set[int]]:
-  print()
-  print(f'Making combos for {settings.items_per_card} items_per_card...')
-
+def _make_combos(settings: Settings) -> list[set[int]]:
   items = range(settings.items_required)
-  combination_count = n_choose_k(settings.items_required, settings.items_per_card)
+  combination_count = _n_choose_k(settings.items_required, settings.items_per_card)
 
   used_combos = []
   check_count = 0
@@ -81,8 +112,6 @@ def make_combos(settings: Settings) -> list[set[int]]:
     # Move to next line
     print()
 
-  if check_count != combination_count:
-    print(f'***** WARNING: Expected {combination_count} combinations but checked {check_count} !')
   if len(used_combos) != settings.items_required:
     print(f'***** WARNING: Expected {settings.items_required} valid combinations but found {len(used_combos)} !')
 
@@ -93,6 +122,32 @@ def make_combos(settings: Settings) -> list[set[int]]:
   print(f'Found: {len(used_combos)} in {diff_time_td}; checked {check_count:,} at {combinations_per_second:,.2f}/s')
 
   return used_combos
+
+
+# Adapted from https://www.101computing.net/the-dobble-algorithm/
+def _make_combos_prime(settings: Settings) -> list[set[int]]:
+  combos = []
+  n = settings.items_per_card - 1
+  for i in range(n + 1):  
+    #Add new card with first symbol
+    combo = [0]
+    #Add n+1 symbols on the card (e.g. 8 symbols)
+    for j in range(n):
+      combo.append((j+1) + (i*n))
+    combos.append(combo)
+
+  #Add n sets of n combos 
+  for i in range(n):
+    for j in range(n):
+      #Append a new card with 1 symbol
+      combo = [i + 1]
+      #Add n symbols on the card (e.g. 7 symbols)
+      for k in range(n):
+        val  = (n+1 + n*k + (i*k+j) % n)
+        combo.append(val)
+      combos.append(combo)
+
+  return combos
 
 
 def make_layout(settings: Settings) -> list[tuple[float, float, float]]:
@@ -139,7 +194,7 @@ def generate() -> None:
   with open(OUTPUT_FILE, 'w') as f:
     f.write('const SETTINGS = ')
     f.write(pprint.pformat(settings))
-    f.write(';')
+    f.write(';\n')
 
 
 generate()
