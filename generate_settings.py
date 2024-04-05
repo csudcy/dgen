@@ -34,11 +34,11 @@ def n_choose_k(n: int, k: int) -> int:
   n_fac = math.factorial(n)
   k_fac = math.factorial(k)
   n_minus_k_fac = math.factorial(n - k)
-  return n_fac / (k_fac * n_minus_k_fac)
+  return int(n_fac / (k_fac * n_minus_k_fac))
 
 
 # Adapted from https://codegolf.stackexchange.com/questions/101229/dobble-spotit-card-generator
-def make_combos(settings: Settings):
+def make_combos(settings: Settings) -> list[set[int]]:
   print(f'Making combos for {settings.items_per_card} items_per_card...')
 
   items = range(settings.items_required)
@@ -52,7 +52,8 @@ def make_combos(settings: Settings):
     if time.time() > next_output:
       next_output = time.time() + 1
       pc_done = float(check_count) / float(combination_count) * 100.0
-      print(f'Checked {pc_done:.2f}% ({check_count} combinations)...')
+      pc_found = float(len(used_combos)) / float(settings.items_required) * 100.0
+      print(f'  Found {pc_found:.2f}% ({len(used_combos)} / {settings.items_required}), checked {pc_done:.2f}% ({check_count} / {combination_count})...')
     potential_combo = set(combo)
     # Work out if this combination is a valid combination
     # Valid combinations share exactly 1 item with every other card
@@ -62,9 +63,13 @@ def make_combos(settings: Settings):
     )
     if valid:
       used_combos.append(potential_combo)
-      print(f'Found {len(used_combos)} valid combination(s)...')
 
-  print(f'Found {len(used_combos)} valid combination(s) out of {check_count} total!')
+  if check_count != combination_count:
+    print(f'***** WARNING: Expected {combination_count} combinations but checked {check_count} !')
+  if len(used_combos) != settings.items_required:
+    print(f'***** WARNING: Expected {settings.items_required} valid combinations but found {len(used_combos)} !')
+
+  print(f'Found: {len(used_combos)} valid combinations (expected {settings.items_required}) out of {check_count} total!')
 
   return used_combos
 
@@ -101,10 +106,10 @@ def generate() -> None:
     info.items_per_card: {
       'items_per_card': info.items_per_card,
       'items_required': info.items_required,
-      'combinations': [
-        list(combo)
+      'combinations': list(sorted([
+        list(sorted(combo))
         for combo in make_combos(info)
-      ],
+      ])),
       'layout': make_layout(info)
     }
     for info in SETTINGS.values()
